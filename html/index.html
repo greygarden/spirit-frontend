@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Spirit</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Script files -->
+        <script src="<!-- @echo ASSET_URL -->/application.js"></script>
+        <!-- @if NODE_ENV='development' -->
+        <script src="<!-- @echo ASSET_URL -->/livereload.js"></script>
+        <!-- @endif -->
+        <!-- favicon -->
+        <link rel='shortcut icon' type='image/x-icon' href='/favicon.png' />
+        <style>
+            @font-face {
+                font-family: 'Open Sans';
+                src: url("<!-- @echo ASSET_URL -->/OpenSans-Light.ttf") format('truetype');
+                font-style: normal;
+                font-weight: 200;
+                font-variant: normal;
+                text-decoration: inherit;
+                text-transform: none;
+            }
+
+            @font-face {
+                font-family: 'Open Sans';
+                src: url("<!-- @echo ASSET_URL -->/OpenSans-Regular.ttf") format('truetype');
+                font-style: normal;
+                font-weight: 300;
+                font-variant: normal;
+                text-decoration: inherit;
+                text-transform: none;
+            }
+            html {
+                height: 100%;
+                font: 200 14px 'Open Sans';
+            }
+            body {
+                height: 100%;
+                margin: 0;
+            }
+            input {
+                outline: none;
+            }
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+            @-webkit-keyframes load8 {
+                0% {
+                    -webkit-transform: rotate(0deg);
+                    transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(360deg);
+                    transform: rotate(360deg);
+                }
+            }
+
+            @keyframes load8 {
+                0% {
+                    -webkit-transform: rotate(0deg);
+                    transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(360deg);
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="application-outer" style="height:100%;"></div>
+    </body>
+</html>

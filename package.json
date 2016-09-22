@@ -1,0 +1,29 @@
+{
+  "name": "spirit-frontend",
+  "version": "0.0.1",
+  "description": "The front end web application for Spirit, a data aggregation / visualisation platform for horticultural monitoring.",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "browserify": "^13.1.0",
+    "del": "^2.2.2",
+    "envify": "^3.4.1",
+    "gulp": "^3.9.1",
+    "gulp-flatten": "^0.3.1",
+    "gulp-livereload": "^3.8.1",
+    "gulp-preprocess": "^2.0.0",
+    "gulp-util": "^3.0.7",
+    "lodash": "^4.16.1",
+    "minifyify": "^7.3.3",
+    "react-recess": "0.0.3",
+    "reactify": "^1.1.1",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.7.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
