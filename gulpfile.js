@@ -9,6 +9,7 @@ const gutil       = require('gulp-util');
 const browserify  = require('browserify');
 const minifyify   = require('minifyify');
 const watchify    = require('watchify');
+const babelify    = require('babelify');
 const source      = require('vinyl-source-stream');
 const buffer      = require('vinyl-buffer');
 const livereload  = require('gulp-livereload');
@@ -20,8 +21,8 @@ const preprocess  = require('gulp-preprocess');
 
 // Check environment vars, e.g.
 // ASSET_URL=http://spirit-dev.kakushin.io API_URL=http://spirit-dev-api.kakushin.io gulp dev
-if (_.isEmpty(process.env.ASSET_URL) || _.isEmpty(process.env.API_URL)) {
-    throw new Error('Environment vars ASSET_URL and API_URL must be set');
+if (_.isEmpty(process.env.ASSET_URL) || _.isEmpty(process.env.API_URL) || _.isEmpty(process.env.SOCKET_URL)) {
+    throw new Error('Environment vars ASSET_URL, API_URL and SOCKET_URL must be set');
 }
 
 // Move our fonts
@@ -58,7 +59,7 @@ gulp.task('dev:js', ['clean:js'], function () {
 
 const browserifyOptions = {
     entries: ['./js/application.js'],
-    transform: [reactify, envify],
+    transform: [babelify.configure({ presets: ['es2015', 'react'] }), reactify, envify],
     debug: true
 };
 
