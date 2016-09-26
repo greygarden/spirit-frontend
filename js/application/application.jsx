@@ -21,6 +21,7 @@ export default class Application extends React.Component {
                     display: 'flex',
                     alignItems: 'center',
                     flexShrink: 0,
+                    background: '#fff',
 
                     '.logo': {
                         paddingLeft: '15px',
@@ -28,28 +29,13 @@ export default class Application extends React.Component {
                         font: '200 20px "Open Sans"',
                     }
                 },
+
+                '.body': {
+                    width: '100%',
+                    height: '100%'
+                }
             },
         };
-
-        const breadcrumbs = [];
-        let fullRoute = ''
-        this.props.routes.map((route, index) => {
-            if (route.path) {
-                fullRoute += `/${route.path}`;
-            }
-            if (route.title) {
-                // Don't add an arrow before the first breadcrumb
-                if (breadcrumbs.length > 0) {
-                    breadcrumbs.push(<div className='arrow' key={`arrow${index}`}>{' > '}</div>);
-                }
-                // Don't bother to link the last breadcrumb
-                if (index !== this.props.routes.length - 1) {
-                    breadcrumbs.push(<Link to={fullRoute} className='link crumb' style={{ color: route.color || '#888' }} key={`crumb${index}`}>{route.title}</Link>);
-                } else {
-                    breadcrumbs.push(<div className='crumb' style={{ color: route.color || '#888', flexShrink: 1 }} key={`crumb${index}`}>{route.title}</div>);
-                }
-            }
-        });
 
         // Render the current route
         const content = (

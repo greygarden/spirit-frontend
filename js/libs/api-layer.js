@@ -41,6 +41,14 @@ export default {
         // Get all the metrics of a specfic type logged by a specific worker between two timestamps
         getMetrics (workerIdentifier, metricName, groupBySeconds, startTimestamp, endTimestamp) {
             return makeAjaxCall(`${process.env.API_URL}/metrics`, 'GET', { workerIdentifier: workerIdentifier, metricName: metricName, groupBySeconds: groupBySeconds, startTimestamp: startTimestamp, endTimestamp: endTimestamp });
-        }
+        },
+
+        getMetricMax (workerIdentifier, metricName, startTimestamp, endTimestamp) {
+            return makeAjaxCall(`${process.env.API_URL}/metric_max`, 'GET', { workerIdentifier: workerIdentifier, metricName: metricName, startTimestamp: startTimestamp, endTimestamp: endTimestamp });
+        },
+
+        getMetricMin (workerIdentifier, metricName, startTimestamp, endTimestamp) {
+            return makeAjaxCall(`${process.env.API_URL}/metric_min`, 'GET', { workerIdentifier: workerIdentifier, metricName: metricName, startTimestamp: startTimestamp, endTimestamp: endTimestamp });
+        },
     }
 };
