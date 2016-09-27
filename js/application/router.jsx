@@ -7,14 +7,14 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Router, Route, Redirect, browserHistory, IndexRoute } from 'react-router'
 import Application from './application.jsx'
-import Metrics from '../metrics/metrics-outer.jsx'
+import Dashboard from '../metrics/dashboard.jsx'
 
 // Define the routes to use
 const appRoutes = (
     <Route>
-        <Redirect from='app' to='/app/metrics' />
+        <Redirect from='app' to='/app/dashboard' />
         <Route name='application' path='app' component={Application}>
-            <Route path='metrics' component={Metrics} />
+            <Route path='dashboard' component={Dashboard} />
         </Route>
         <Redirect from='*' to='/app' />
     </Route>
