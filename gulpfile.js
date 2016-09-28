@@ -27,7 +27,7 @@ if (_.isEmpty(process.env.ASSET_URL) || _.isEmpty(process.env.API_URL) || _.isEm
 
 // Move our fonts
 gulp.task('fonts', function (callback) {
-    gulp.src(['./fonts/*'])
+    gulp.src(['./fonts/*', './css/*'])
         .pipe(gulp.dest('./build'))
         .on('end', callback);
 });

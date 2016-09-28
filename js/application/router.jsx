@@ -6,10 +6,23 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Router, Route, Redirect, browserHistory, IndexRoute } from 'react-router'
+import Auth from '../auth/auth.jsx'
+import authHelper from '../libs/auth-helper.js'
 import Application from './application.jsx'
 import Dashboard from '../metrics/dashboard.jsx'
 
-// Define the routes to use
+// Unauthenticated routes
+var authRoutes = (
+    <Route>
+        <Route path="/app">
+            <Route path="auth" component={Auth} />
+            <Redirect from="*" to="/app/auth" />
+        </Route>
+        <Redirect from="*" to="/app/auth" />
+    </Route>
+);
+
+// Authenticated routes
 const appRoutes = (
     <Route>
         <Redirect from='app' to='/app/dashboard' />
@@ -26,7 +39,7 @@ export default {
     },
 
     run () {
-        // Use the auth routes if not authenticated
-        ReactDOM.render(<Router history={browserHistory}>{appRoutes}</Router>, document.getElementById('application-outer'));
+        var routes = authHelper.isLoggedIn() ? appRoutes : authRoutes;
+        ReactDOM.render(<Router history={browserHistory}>{routes}</Router>, document.getElementById('application-outer'));
     }
 }

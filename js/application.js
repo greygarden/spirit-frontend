@@ -10,4 +10,4 @@ setTimeout(() => {
     router.run();
     // Attach fastclick for better mobile touch support
     attachFastClick(document.body, {});
-});
+}, 50);

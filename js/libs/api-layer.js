@@ -7,6 +7,8 @@ import request from 'reqwest'
 import _ from 'lodash'
 import Promise from 'bluebird'
 
+// Optionally pass in a post send hook that will be called after any response is returned
+var postSendHook;
 // Make a call to the Spirit API and return a promise
 const makeAjaxCall = (url, method, data) => {
     let params = {
@@ -28,9 +30,11 @@ const makeAjaxCall = (url, method, data) => {
     return new Promise(function (resolve, reject) {
         request(params)
         .then((response) => {
+            if (_.isFunction(postSendHook)) { postSendHook(response, params); }
             resolve(response);
         })
         .fail((response, message) => {
+            if (_.isFunction(postSendHook)) { postSendHook(response, params); }
             reject(response);
         });
     });
@@ -49,6 +53,21 @@ export default {
 
         getMetricMin (workerIdentifier, metricName, startTimestamp, endTimestamp) {
             return makeAjaxCall(`${process.env.API_URL}/metric_min`, 'GET', { workerIdentifier: workerIdentifier, metricName: metricName, startTimestamp: startTimestamp, endTimestamp: endTimestamp });
+        },
+    },
+    auth: {
+        login (email, password) {
+            return makeAjaxCall(`${process.env.API_URL}/auth/login`, 'POST', { email: email, password: password });
+        },
+
+        logout () {
+            return makeAjaxCall(`${process.env.API_URL}/auth/logout`, 'POST');
+        },
+    },
+    settings: {
+        // This hook will be called with the returned JSON after every request before the request promise is resolved.
+        setPostSendHook: function (hook) {
+            postSendHook = hook;
         },
     }
 };

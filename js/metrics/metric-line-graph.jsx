@@ -39,7 +39,7 @@ export default class LightLevel extends React.Component {
 
     constructor (props) {
         super(props);
-        this.state = { metrics: '', groupingSeconds: 1800, currentValue: 0, dayAverage: 0, dayMax: 0, dayMin: 0 };
+        this.state = { expanded: false, metrics: '', groupingSeconds: 1800, currentValue: 0, dayAverage: 0, dayMax: 0, dayMin: 0 };
     }
 
     updateGroupingSeconds (seconds) {
@@ -50,13 +50,21 @@ export default class LightLevel extends React.Component {
         }
     }
 
+    toggleExpanded () {
+        this.setState({
+            expanded: !this.state.expanded
+        }, () => {
+            this.syncData();
+        });
+    }
+
     syncData () {
         if (this.syncInterval) {
             clearInterval(this.syncInterval);
         }
 
         let chart;
-        apiLayer.metrics.getMetrics('A9560361-CC9F-4C7A-9965-C31A9E344EA8', this.props.metricName, this.state.groupingSeconds, moment().subtract(this.state.groupingSeconds * 12, 'seconds').toISOString(), moment().toISOString())
+        apiLayer.metrics.getMetrics('A9560361-CC9F-4C7A-9965-C31A9E344EA8', this.props.metricName, this.state.groupingSeconds / (this.state.expanded ? 3 : 1), moment().subtract(this.state.groupingSeconds * 12, 'seconds').toISOString(), moment().toISOString())
         .then((data) => {
             chart = Highcharts.chart(this.refs.chart, {
                 title: {
@@ -133,7 +141,7 @@ export default class LightLevel extends React.Component {
 
         // Based on the interval of grouping, we can get refreshed data to update the graph
         this.syncInterval = setInterval(() => {
-            apiLayer.metrics.getMetrics('A9560361-CC9F-4C7A-9965-C31A9E344EA8', this.props.metricName, this.state.groupingSeconds, moment().subtract(this.state.groupingSeconds, 'seconds').toISOString(), moment().toISOString())
+            apiLayer.metrics.getMetrics('A9560361-CC9F-4C7A-9965-C31A9E344EA8', this.props.metricName, this.state.groupingSeconds / (this.state.expanded ? 3 : 1), moment().subtract(this.state.groupingSeconds / (this.state.expanded ? 2 : 1), 'seconds').toISOString(), moment().toISOString())
             .then((data) => {
                 const series = chart.series[0],
                 shift = series.data.length > 12;
@@ -170,7 +178,7 @@ export default class LightLevel extends React.Component {
         const socket = io.connect(process.env.SOCKET_URL);
         socket.on('metric-' + this.props.metricName, (data) => {
             const value = this.props.formatValue ? this.props.formatValue(data.value) : parseInt(data.value);
-            this.setState({ currentValue: value });
+            this.setState({ currentValue: value, latestUpdate: moment() });
         });
 
         this.syncData();
@@ -181,11 +189,84 @@ export default class LightLevel extends React.Component {
             '.lightLevelOuter': {
                 background: '#fff',
                 display: 'flex',
-                maxWidth: '680px',
-                minWidth: '500px',
+                width: this.state.expanded ? '1255px' : '620px',
+                maxWidth: this.state.expanded ? '1255px' : '620px',
                 flexGrow: 1,
                 border: '1px solid #eee',
                 margin: '7.5px',
+
+                '.chartOuter': {
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+
+                    '.upper': {
+                        display: 'flex',
+                        alignItems: 'center',
+                        height: '40px',
+
+                        '.title': {
+                            padding: '0 10px',
+                            font: '400 16px "Open Sans"',
+                            color: '#999',
+                        },
+
+                        '.statusOuter': {
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexGrow: 1,
+                            marginTop: '2px',
+
+                            '.indicator': {
+                                background: '#fff',
+                                position: 'relative',
+                                width: '25px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                fontSize: '12px',
+                                lineHeight: '12px',
+                                '@includes': [ sharedStyles.loader ],
+
+                                '.loaderOuter': {
+                                    marginRight: '8px'
+                                },
+
+                                '.liveCircle': {
+                                    background: shadeColor('#9DE0AD', 10),
+                                    width: '10px',
+                                    height: '10px',
+                                    borderRadius: '10px'
+                                }
+                            },
+
+                            '.message': {
+                                color: '#bbb'
+                            }
+                        },
+
+                        '.granularity': {
+                            display: 'flex',
+                            alignItems: 'center',
+                            paddingRight: '10px',
+
+                            '.button': {
+                                color: this.props.highlightColor,
+                                margin: '5px',
+                                cursor: 'pointer'
+                            },
+
+                            '.active': {
+                                fontWeight: 400,
+                                textDecoration: 'underline'
+                            }
+                        }
+                    },
+
+                    '.chart': {
+                        marginRight: '5px',
+                        height: '340px'
+                    }
+                },
 
                 '.info': {
                     background: '#eee',
@@ -195,10 +276,47 @@ export default class LightLevel extends React.Component {
                     flexDirection: 'column',
                     alignItems: 'center',
 
-                    '.valueOuter': {
-                        flexBasis: '20%',
+                    '.settingsOuter': {
+                        height: '40px',
                         display: 'flex',
-                        padding: '0 15px',
+                        flexDirection: 'row-reverse',
+                        alignItems: 'center',
+                        width: '100%',
+                        background: '#e8e8e8',
+
+                        '.button': {
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#555',
+                            borderRight: '1px solid #d5d5d5',
+                            background: '#e3e3e3',
+                            height: '100%',
+                            width: '40px',
+                            cursor: 'pointer',
+
+                            'i': {
+                                fontSize: '20px',
+                                color: '#999'
+                            },
+
+                            ':hover': {
+                                background: '#dadada',
+                            },
+
+                            ':active': {
+                                background: '#d3d3d3',
+                            }
+                        },
+
+                        '.settings': {
+                            borderRight: 'none'
+                        }
+                    },
+
+                    '.valueOuter': {
+                        display: 'flex',
+                        padding: '15px 10px',
                         width: '100%',
                         flexDirection: 'column',
                         justifyContent: 'center',
@@ -223,54 +341,29 @@ export default class LightLevel extends React.Component {
                         }
                     }
                 },
-
-                '.chartOuter': {
-                    flexGrow: 1,
-                    padding: '5px',
-                    display: 'flex',
-                    flexDirection: 'column',
-
-                    '.upper': {
-                        display: 'flex',
-                        alignItems: 'center',
-
-                        '.title': {
-                            padding: '5px 10px',
-                            marginBottom: '5px',
-                            font: '400 16px "Open Sans"',
-                            color: '#999',
-                            flexGrow: 1
-                        },
-
-                        '.granularity': {
-                            display: 'flex',
-                            alignItems: 'center',
-
-                            '.button': {
-                                color: this.props.highlightColor,
-                                margin: '5px',
-                                cursor: 'pointer'
-                            },
-
-                            '.active': {
-                                fontWeight: 400,
-                                textDecoration: 'underline'
-                            }
-                        }
-                    },
-
-                    '.chart': {
-                        height: '340px'
-                    }
-                }
             }
         };
+
+        const connected = this.state.latestUpdate && this.state.latestUpdate > moment().subtract(1, 'minute');
 
         let chart = (
             <div className='lightLevelOuter'>
                 <div className='chartOuter'>
                     <div className='upper'>
-                        <div className='title'>{this.props.title}</div>
+                        <div className='title'>
+                            {this.props.title}
+                        </div>
+                        <div className='statusOuter'>
+                            <div className='indicator'>
+                                <div className={`loaderOuter${!connected ? ' active' : ''}`}>
+                                    <div className='loader small'></div>
+                                </div>
+                                <div className='liveCircle' />
+                            </div>
+                            <div className='message'>
+                                {connected ? 'Live' : 'Connecting...'}
+                            </div>
+                        </div>
                         <div className='granularity'>
                             <div className={'button' + (this.state.groupingSeconds === 7200 ? ' active' : '')} onClick={this.updateGroupingSeconds.bind(this, 7200)}>24hr</div>
                             <div className={'button' + (this.state.groupingSeconds === 1800 ? ' active' : '')} onClick={this.updateGroupingSeconds.bind(this, 1800)}>6hr</div>
@@ -282,6 +375,17 @@ export default class LightLevel extends React.Component {
                     <div className='chart' ref='chart'></div>
                 </div>
                 <div className='info'>
+                    <div className='settingsOuter'>
+                        <div className='button settings'>
+                            <i className='lnr lnr-cog'></i>
+                        </div>
+                        <div className='button expand' onClick={this.toggleExpanded.bind(this)}>
+                            <i className={`lnr lnr-frame-${this.state.expanded ? 'contract' : 'expand'}`} style={{ paddingLeft: '3px' }}></i>
+                        </div>
+                        <div className='button favourite'>
+                            <i className='lnr lnr-star'></i>
+                        </div>
+                    </div>
                     <div className='valueOuter'>
                         <div className='largeValue'>
                             <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={this.state.currentValue} duration={300} formatValue={(n) => { return n + this.props.units }} />

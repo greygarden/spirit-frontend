@@ -23,11 +23,16 @@ export default {
                 border: '2px solid rgba(120, 120, 120, 0.2)',
                 borderLeft: '2px solid #999',
                 transform: 'translateZ(0)',
-                width: '15px',
-                height: '15px',
+                width: '20px',
+                height: '20px',
                 borderRadius: '50%',
                 WebkitAnimation: 'load8 0.7s infinite linear',
                 animation: 'load8 0.7s infinite linear'
+            },
+
+            '.small': {
+                width: '16px',
+                height: '16px',
             }
         },
 
