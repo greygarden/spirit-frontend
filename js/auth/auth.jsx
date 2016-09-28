@@ -137,7 +137,6 @@ export default class Auth extends React.Component {
     }
 
     componentDidMount () {
-        console.log(TriangleBG);
         // Set the title of the page
         document.title = 'Login - Spirit';
 

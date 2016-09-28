@@ -180,8 +180,8 @@ TriangleBG.prototype.generateNet = function() {
    this.renderLoop();
    if (this.alternateElem) {
       var dataURL = this.canvas.toDataURL("image/png");
+      this.alternateElem.style.backgroundImage = "url("+dataURL+")";
    }
-   this.alternateElem.style.backgroundImage = "url("+dataURL+")";
 };
 TriangleBG.prototype.renderLoop = function() {
    if (this.delete === true) {
