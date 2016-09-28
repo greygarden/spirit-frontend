@@ -144,9 +144,7 @@ export default class Auth extends React.Component {
             canvas : this.refs.canvas,
             cellHeight : 120,
             cellWidth : 100,
-            mouseLight : true,
-            mouseLightRadius : 500,
-            mouseLightIncrement : 10,
+            mouseLight : false,
             resizeAdjustment : true,
             variance : 1.2  ,
             pattern : "x*y",
@@ -252,7 +250,8 @@ export default class Auth extends React.Component {
                                     padding: '8px 12px',
                                     marginBottom: '25px',
                                     flexGrow: 1,
-                                    color: '#fff'
+                                    color: '#fff',
+                                    borderRadius: 0
                                 },
                             }
                         },

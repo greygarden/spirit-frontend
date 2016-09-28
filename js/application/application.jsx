@@ -26,11 +26,27 @@ export default class Application extends React.Component {
                     background: '#fff',
                     borderBottom: '1px solid #eee',
 
-                    '.logo': {
-                        paddingLeft: '15px',
-                        color: '#555',
+                    '.logoOuter': {
+                        color: '#777',
                         font: '200 20px "Open Sans"',
-                        flexGrow: 1
+                        flexGrow: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        height: '100%',
+
+                        '.logo': {
+                            background: '#83AF9B',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginRight: '10px',
+                            width: '40px',
+                            color: '#fff',
+                            fontSize: '16px',
+                            lineHeight: '1.2',
+                            height: '100%'
+                        },
                     },
 
                     '.rightButtons': {
@@ -81,7 +97,13 @@ export default class Application extends React.Component {
         const content = (
             <div>
                 <div className='topBar'>
-                    <Link to='/' className='logo'>核心 Spirit</Link>
+                    <div className='logoOuter'>
+                        <div className='logo'>
+                            <div>核</div>
+                            <div>心</div>
+                        </div>
+                        <div className='title'>Spirit</div>
+                    </div>
                     <div className='rightButtons'>
                         <div className='email'>{ authHelper.getCurrentUser().email }</div>
                         <div className='icon user'>
