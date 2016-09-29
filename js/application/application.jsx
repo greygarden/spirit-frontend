@@ -48,8 +48,8 @@ export default class Application extends React.Component {
 
                         '.logo': {
                             background: '#83AF9B',
-                            width: this.state.leftMenuExpanded ? '45px' : '55px',
-                            height: this.state.leftMenuExpanded ? '55px' : '65px',
+                            width: this.state.leftMenuExpanded ? '45px' : '65px',
+                            height: this.state.leftMenuExpanded ? '55px' : '75px',
                             color: '#fff',
                             fontSize: '20px',
                             display: 'flex',
@@ -91,7 +91,16 @@ export default class Application extends React.Component {
                             },
 
                             '.text': {
-                                display: this.state.leftMenuExpanded ? 'block' : 'none'
+                                display: this.state.leftMenuExpanded ? 'block' : 'none',
+                                flexGrow: '1'
+                            },
+
+                            '.dot': {
+                                display: 'none',
+                                width: '10px',
+                                height: '10px',
+                                background: 'rgba(255, 255, 255, 0.5)',
+                                borderRadius: '10px'
                             },
 
                             ':hover': {
@@ -105,7 +114,11 @@ export default class Application extends React.Component {
 
                         '.active': {
                             fontWeight: '400',
-                            paddingLeft: '30px'
+                            background: sharedStyles.shadeColor('#556270', 10),
+
+                            '.dot': {
+                                'display': this.state.leftMenuExpanded ? 'block' : 'none'
+                            }
                         },
                     }
                 },
@@ -211,14 +224,14 @@ export default class Application extends React.Component {
                         </div>
                     </div>
                     <div className='menuButtons'>
-                        <Link className='button' to='/app/dashboard' activeClassName='active'>
-                            <i className='lnr lnr-pie-chart' /><div className='text'>Dashboards</div>
+                        <Link className={`button${window.location.href.match('/app/dashboard') ? ' active' : ''}`} to='/app/dashboard'>
+                            <i className='lnr lnr-pie-chart' /><div className='text'>Dashboards</div><div className='dot'></div>
                         </Link>
                         <Link className='button' to='/app/workers' activeClassName='active'>
-                            <i className='lnr lnr-leaf' /><div className='text'>Workers</div>
+                            <i className='lnr lnr-leaf' /><div className='text'>Workers</div><div className='dot'></div>
                         </Link>
                         <Link className='button' to='/app/alerts' activeClassName='active'>
-                            <i className='lnr lnr-alarm' /><div className='text'>Alerts</div>
+                            <i className='lnr lnr-alarm' /><div className='text'>Alerts</div><div className='dot'></div>
                         </Link>
                     </div>
                 </div>
