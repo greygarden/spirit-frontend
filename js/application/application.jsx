@@ -79,14 +79,15 @@ export default class Application extends React.Component {
                         flexDirection: 'column',
 
                         '.button': {
-                            padding: this.state.leftMenuExpanded ? '15px' : '15px 10px',
+                            padding: this.state.leftMenuExpanded ? '15px' : '15px 0',
                             color: '#fff',
                             borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: this.state.leftMenuExpanded ? 'flex-start' : 'center',
 
                             'i': {
-                                fontSize: this.state.leftMenuExpanded ? '18px' : '24px',
+                                fontSize: this.state.leftMenuExpanded ? '18px' : '23px',
                                 marginRight: this.state.leftMenuExpanded ? '15px' : 0
                             },
 
@@ -114,7 +115,7 @@ export default class Application extends React.Component {
 
                         '.active': {
                             fontWeight: '400',
-                            background: sharedStyles.shadeColor('#556270', 10),
+                            background: sharedStyles.shadeColor('#556270', 12),
 
                             '.dot': {
                                 'display': this.state.leftMenuExpanded ? 'block' : 'none'

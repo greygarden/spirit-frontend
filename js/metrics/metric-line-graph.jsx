@@ -168,8 +168,8 @@ export default class LightLevel extends React.Component {
             '.lightLevelOuter': {
                 background: '#fff',
                 display: 'flex',
-                width: this.state.expanded ? '1255px' : '620px',
-                maxWidth: this.state.expanded ? '1255px' : '620px',
+                width: this.state.expanded ? '1205px' : '595px',
+                maxWidth: this.state.expanded ? '1205px' : '595px',
                 flexGrow: 1,
                 border: '1px solid #eee',
                 margin: '7.5px',
