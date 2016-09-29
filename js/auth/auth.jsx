@@ -43,6 +43,12 @@ export default class Auth extends React.Component {
         event.preventDefault();
     }
 
+    onKeyPress (event) {
+        if (event.key == 'Enter') {
+            this.login();
+        }
+    }
+
     validate (event) {
         let success = true;
 
@@ -316,10 +322,10 @@ export default class Auth extends React.Component {
                         <div className='upper'>Login to access Spirit.</div>
                         <div className='form'>
                             <div>
-                                <input value={this.state.email} type='text' placeholder='Email' ref='email' onChange={this.updateEmail.bind(this)}></input>
+                                <input value={this.state.email} type='text' placeholder='Email' ref='email' onChange={this.updateEmail.bind(this)} onKeyPress={this.onKeyPress.bind(this)}></input>
                             </div>
                             <div>
-                                <input value={this.state.password} type='password' className='last' placeholder='Password' ref='password' onChange={this.updatePassword.bind(this)}></input>
+                                <input value={this.state.password} type='password' className='last' placeholder='Password' ref='password' onChange={this.updatePassword.bind(this)} onKeyPress={this.onKeyPress.bind(this)}></input>
                             </div>
                         </div>
                         <div className='submit' onClick={this.login.bind(this)}>
