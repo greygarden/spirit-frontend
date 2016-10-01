@@ -1,24 +1,22 @@
 // -------------------------------------------------------------
-// This file contains a page that allows users to check domain
-// registration details including expiry date.
+// Single line graph for arbitary metrics.
 // -------------------------------------------------------------
 
 import React from 'react'
-import ReactDOM from 'react-dom'
-import apiLayer from '../libs/api-layer'
+import apiLayer from '../../libs/api-layer'
 import recess from 'react-recess'
 import moment from 'moment'
 import timezone from 'moment-timezone'
-import sharedStyles from '../libs/shared-styles'
+import sharedStyles from '../../libs/shared-styles'
 import Highcharts from 'highcharts';
 import AnimatedNumber from 'react-animated-number'
 import io from 'socket.io-client'
 
-export default class LightLevel extends React.Component {
+export default class LineGraphRendered extends React.Component {
 
     constructor (props) {
         super(props);
-        this.state = { expanded: false, metrics: '', groupingSeconds: 1800, currentValue: 0, dayAverage: 0, dayMax: 0, dayMin: 0 };
+        this.state = { metrics: '', groupingSeconds: 1800, currentValue: 0, dayAverage: 0, dayMax: 0, dayMin: 0 };
     }
 
     updateGroupingSeconds (seconds) {
@@ -29,21 +27,13 @@ export default class LightLevel extends React.Component {
         }
     }
 
-    toggleExpanded () {
-        this.setState({
-            expanded: !this.state.expanded
-        }, () => {
-            this.syncData();
-        });
-    }
-
     syncData () {
         if (this.syncInterval) {
             clearInterval(this.syncInterval);
         }
 
         let chart;
-        apiLayer.metrics.getMetrics('A9560361-CC9F-4C7A-9965-C31A9E344EA8', this.props.metricName, this.state.groupingSeconds / (this.state.expanded ? 3 : 1), moment().subtract(this.state.groupingSeconds * 12, 'seconds').toISOString(), moment().toISOString())
+        apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, this.state.groupingSeconds / (this.props.expanded ? 3 : 1), moment().subtract(this.state.groupingSeconds * 12, 'seconds').toISOString(), moment().toISOString())
         .then((data) => {
             chart = Highcharts.chart(this.refs.chart, {
                 title: {
@@ -120,7 +110,7 @@ export default class LightLevel extends React.Component {
 
         // Based on the interval of grouping, we can get refreshed data to update the graph
         this.syncInterval = setInterval(() => {
-            apiLayer.metrics.getMetrics('A9560361-CC9F-4C7A-9965-C31A9E344EA8', this.props.metricName, this.state.groupingSeconds / (this.state.expanded ? 3 : 1), moment().subtract(this.state.groupingSeconds / (this.state.expanded ? 2 : 1), 'seconds').toISOString(), moment().toISOString())
+            apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, this.state.groupingSeconds / (this.props.expanded ? 3 : 1), moment().subtract(this.state.groupingSeconds / (this.props.expanded ? 2 : 1), 'seconds').toISOString(), moment().toISOString())
             .then((data) => {
                 const series = chart.series[0],
                 shift = series.data.length > 12;
@@ -137,19 +127,19 @@ export default class LightLevel extends React.Component {
         });
 
         // Get the average value from the last 24 hours
-        apiLayer.metrics.getMetrics('A9560361-CC9F-4C7A-9965-C31A9E344EA8', this.props.metricName, 86400, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
+        apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, 86400, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
         .then((data) => {
             this.setState({ dayAverage: this.props.formatValue ? this.props.formatValue(data.metrics[0].value) : parseInt(data.metrics[0].value) })
         });
 
         // Get the max value from the last 24 hours
-        apiLayer.metrics.getMetricMax('A9560361-CC9F-4C7A-9965-C31A9E344EA8', this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
+        apiLayer.metrics.getMetricMax(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
         .then((data) => {
             this.setState({ dayMax: this.props.formatValue ? this.props.formatValue(data.maxValue) : parseInt(data.maxValue) })
         });
 
         // Get the max value from the last 24 hours
-        apiLayer.metrics.getMetricMin('A9560361-CC9F-4C7A-9965-C31A9E344EA8', this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
+        apiLayer.metrics.getMetricMin(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
         .then((data) => {
             this.setState({ dayMin: this.props.formatValue ? this.props.formatValue(data.minValue) : parseInt(data.minValue) })
         });
@@ -165,14 +155,9 @@ export default class LightLevel extends React.Component {
 
     render () {
         const chartStyles = {
-            '.lightLevelOuter': {
+            '.lineGraphOuter': {
                 background: '#fff',
                 display: 'flex',
-                width: this.state.expanded ? '1205px' : '595px',
-                maxWidth: this.state.expanded ? '1205px' : '595px',
-                flexGrow: 1,
-                border: '1px solid #eee',
-                margin: '7.5px',
 
                 '.chartOuter': {
                     flexGrow: 1,
@@ -326,7 +311,7 @@ export default class LightLevel extends React.Component {
         const connected = this.state.latestUpdate && this.state.latestUpdate > moment().subtract(1, 'minute');
 
         let chart = (
-            <div className='lightLevelOuter'>
+            <div className='lineGraphOuter'>
                 <div className='chartOuter'>
                     <div className='upper'>
                         <div className='title'>
@@ -355,11 +340,11 @@ export default class LightLevel extends React.Component {
                 </div>
                 <div className='info'>
                     <div className='settingsOuter'>
-                        <div className='button settings'>
+                        <div className='button settings' onClick={this.props.toggleSettings}>
                             <i className='lnr lnr-cog'></i>
                         </div>
-                        <div className='button expand' onClick={this.toggleExpanded.bind(this)}>
-                            <i className={`lnr lnr-frame-${this.state.expanded ? 'contract' : 'expand'}`} style={{ paddingLeft: '3px' }}></i>
+                        <div className='button expand' onClick={this.props.toggleExpanded}>
+                            <i className={`lnr lnr-frame-${this.props.expanded ? 'contract' : 'expand'}`} style={{ paddingLeft: '3px' }}></i>
                         </div>
                         <div className='button favourite'>
                             <i className='lnr lnr-star'></i>

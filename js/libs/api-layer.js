@@ -42,6 +42,10 @@ const makeAjaxCall = (url, method, data) => {
 
 export default {
     metrics: {
+        // Lists all available metrics for a specific worker
+        listMetrics (workerIdentifier) {
+            return makeAjaxCall(`${process.env.API_URL}/metrics_list`, 'GET', { workerIdentifier: workerIdentifier });
+        },
         // Get all the metrics of a specfic type logged by a specific worker between two timestamps
         getMetrics (workerIdentifier, metricName, groupBySeconds, startTimestamp, endTimestamp) {
             return makeAjaxCall(`${process.env.API_URL}/metrics`, 'GET', { workerIdentifier: workerIdentifier, metricName: metricName, groupBySeconds: groupBySeconds, startTimestamp: startTimestamp, endTimestamp: endTimestamp });
@@ -54,6 +58,20 @@ export default {
         getMetricMin (workerIdentifier, metricName, startTimestamp, endTimestamp) {
             return makeAjaxCall(`${process.env.API_URL}/metric_min`, 'GET', { workerIdentifier: workerIdentifier, metricName: metricName, startTimestamp: startTimestamp, endTimestamp: endTimestamp });
         },
+    },
+    graphs: {
+        getGraphs () {
+            return makeAjaxCall(`${process.env.API_URL}/graphs`, 'GET');
+        },
+
+        createGraph (graphProps) {
+            return makeAjaxCall(`${process.env.API_URL}/create_graph`, 'POST', graphProps);
+        }
+    },
+    workers: {
+        getWorkers () {
+            return makeAjaxCall(`${process.env.API_URL}/workers`, 'GET');
+        }
     },
     auth: {
         login (email, password) {

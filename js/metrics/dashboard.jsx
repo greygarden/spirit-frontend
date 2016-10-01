@@ -5,12 +5,41 @@
 
 import React from 'react'
 import recess from 'react-recess'
-import MetricLineGraph from './metric-line-graph.jsx'
+import GraphOuter from './shared-graph/graph-outer.jsx'
+import apiLayer from '../libs/api-layer'
+import _ from 'lodash'
 
 export default class MetricsOuter extends React.Component {
 
     constructor (props) {
         super(props);
+        this.state = {
+            graphs: []
+        }
+    }
+
+    newGraph () {
+        this.state.graphs.push({
+            type: 'line',
+            settingsVisible: true
+        });
+        this.setState({
+            graphs: this.state.graphs
+        });
+    }
+
+    deleteGraph (index) {
+        this.state.graphs.splice(index, 1)
+        this.setState({ graphs: this.state.graphs })
+    }
+
+    componentDidMount() {
+        apiLayer.graphs.getGraphs()
+        .then((data) => {
+            this.setState({
+                graphs: data.graphs
+            })
+        })
     }
 
     render () {
@@ -61,15 +90,21 @@ export default class MetricsOuter extends React.Component {
             }
         };
 
+        const graphs = this.state.graphs.map((graph, index) => {
+            // New graph
+            return <GraphOuter {...graph} key={index} deleteGraph={this.deleteGraph.bind(this, index)} />
+        });
+
         let outer = (
             <div className='dashboard'>
                 <div className='title'>
                     Upstairs Greenhouse, General Metrics
-                    <div className='addGraph'><i className='lnr lnr-plus-circle'></i>New Graph</div>
+                    <div className='addGraph' onClick={this.newGraph.bind(this)}><i className='lnr lnr-plus-circle'></i>New Graph</div>
                 </div>
-                <MetricLineGraph title={'Air Temperature'} units={'°C'} metricName={'airTemperature'} highlightColor={'#FC9D9A'} formatValue={v => parseFloat(v).toFixed(1)} />
+                {graphs}
+                { /*<MetricLineGraph title={'Air Temperature'} units={'°C'} metricName={'airTemperature'} highlightColor={'#FC9D9A'} formatValue={v => parseFloat(v).toFixed(1)} />
                 <MetricLineGraph title={'Humidity'} units={'%'} metricName={'humidity'} highlightColor={'#C8C8A9'} />
-                <MetricLineGraph title={'Light Level'} units={' lm'} metricName={'lightLevel'} highlightColor={'#83AF9B'} />
+                <MetricLineGraph title={'Light Level'} units={' lm'} metricName={'lightLevel'} highlightColor={'#83AF9B'} /> */}
             </div>
         );
 
