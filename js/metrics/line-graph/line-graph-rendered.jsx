@@ -145,7 +145,7 @@ export default class LineGraphRendered extends React.Component {
         });
 
         const socket = io.connect(process.env.SOCKET_URL);
-        socket.on('metric-' + this.props.metricName, (data) => {
+        socket.on(`metric-${body.workerIdentifier}-${body.metricName}`, (data) => {
             const value = this.props.formatValue ? this.props.formatValue(data.value) : parseInt(data.value);
             this.setState({ currentValue: value, latestUpdate: moment() });
         });
