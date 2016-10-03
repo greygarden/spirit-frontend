@@ -133,31 +133,31 @@ export default class LineGraphRendered extends React.Component {
             }
         });
 
-        // // Get the average value from the last 24 hours
-        // apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, 86400, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
-        // .then((data) => {
-        //     this.setState({ dayAverage: this.props.formatValue ? this.props.formatValue(data.metrics[0].value) : parseInt(data.metrics[0].value) })
-        // });
+        // Get the average value from the last 24 hours
+        apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, 86400, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
+        .then((data) => {
+            this.setState({ dayAverage: this.props.formatValue ? this.props.formatValue(data.metrics[0].value) : parseInt(data.metrics[0].value) })
+        });
 
-        // // Get the max value from the last 24 hours
-        // apiLayer.metrics.getMetricMax(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
-        // .then((data) => {
-        //     this.setState({ dayMax: this.props.formatValue ? this.props.formatValue(data.maxValue) : parseInt(data.maxValue) })
-        // });
+        // Get the max value from the last 24 hours
+        apiLayer.metrics.getMetricMax(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
+        .then((data) => {
+            this.setState({ dayMax: this.props.formatValue ? this.props.formatValue(data.maxValue) : parseInt(data.maxValue) })
+        });
 
-        // // Get the max value from the last 24 hours
-        // apiLayer.metrics.getMetricMin(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
-        // .then((data) => {
-        //     this.setState({ dayMin: this.props.formatValue ? this.props.formatValue(data.minValue) : parseInt(data.minValue) })
-        // });
+        // Get the max value from the last 24 hours
+        apiLayer.metrics.getMetricMin(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
+        .then((data) => {
+            this.setState({ dayMin: this.props.formatValue ? this.props.formatValue(data.minValue) : parseInt(data.minValue) })
+        });
 
-        // const socket = io.connect(process.env.SOCKET_URL);
-        // socket.on(`metric-${this.props.workerIdentifier}-${this.props.metricName}`, (data) => {
-        //     const value = this.props.formatValue ? this.props.formatValue(data.value) : parseInt(data.value);
-        //     this.setState({ currentValue: value, latestUpdate: moment() });
-        // });
+        const socket = io.connect(process.env.SOCKET_URL);
+        socket.on(`metric-${this.props.workerIdentifier}-${this.props.metricName}`, (data) => {
+            const value = this.props.formatValue ? this.props.formatValue(data.value) : parseInt(data.value);
+            this.setState({ currentValue: value, latestUpdate: moment() });
+        });
 
-        // this.syncData();
+        this.syncData();
     }
 
     render () {
