@@ -29,8 +29,16 @@ export default class MetricsOuter extends React.Component {
     }
 
     deleteGraph (index) {
-        this.state.graphs.splice(index, 1)
-        this.setState({ graphs: this.state.graphs })
+        if (this.state.graphs[index].identifier) {
+            apiLayer.graphs.deleteGraph(this.state.graphs[index].identifier)
+            .then(() => {
+                this.state.graphs.splice(index, 1)
+                this.setState({ graphs: this.state.graphs })
+            })
+        } else {
+            this.state.graphs.splice(index, 1)
+            this.setState({ graphs: this.state.graphs })
+        }
     }
 
     componentDidMount() {

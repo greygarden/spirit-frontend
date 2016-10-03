@@ -8,6 +8,7 @@ import recess from 'react-recess'
 import authHelper from '../libs/auth-helper'
 import apiLayer from '../libs/api-layer'
 import sharedStyles from '../libs/shared-styles'
+import ShadowDropdown from '../components/shadow-dropdown.jsx'
 
 export default class Application extends React.Component {
 
@@ -189,11 +190,11 @@ export default class Application extends React.Component {
                                 },
 
                                 ':hover': {
-                                    background: '#f5f5f5'
+                                    background: '#f9f9f9'
                                 },
 
                                 ':active': {
-                                    background: '#eee'
+                                    background: '#f1f1f1'
                                 }
                             }
                         }
@@ -245,9 +246,36 @@ export default class Application extends React.Component {
                             <div className='icon user'>
                                 <i className='lnr lnr-user'></i>
                             </div>
-                            <div className='icon settings' onClick={apiLayer.auth.logout}>
-                                <i className='lnr lnr-cog'></i>
-                            </div>
+
+                            <ShadowDropdown 
+                                recessStyles={{
+                                    '.dropdown.shadow': {
+                                        width: '45px', height: '100%',
+
+                                        '.buttonInner': {
+                                            background: '#fff',
+
+                                            ':hover': {
+                                                background: '#f9f9f9',
+                                            },
+
+                                            ':active': {
+                                                background: '#f1f1f1',
+                                            }
+                                        },
+
+                                        '.menu': {
+                                            width: '150px'
+                                        }
+                                    }
+                                }}
+                                icon={<i className='lnr lnr-cog' />}
+                                items={[
+                                    <div className='item' key='3' style={{ borderBottom: 'none' }} onClick={apiLayer.auth.logout}>
+                                        <i className='lnr lnr-exit' style={{ marginRight: '10px', fontSize: '16px' }}/>Logout
+                                    </div>
+                                ]}
+                            />
                         </div>
                     </div>
                     <div className='bodyInner'>

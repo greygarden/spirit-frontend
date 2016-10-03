@@ -11,12 +11,13 @@ import sharedStyles from '../../libs/shared-styles'
 import Highcharts from 'highcharts';
 import AnimatedNumber from 'react-animated-number'
 import io from 'socket.io-client'
+import ShadowDropdown from '../../components/shadow-dropdown.jsx'
 
 export default class LineGraphRendered extends React.Component {
 
     constructor (props) {
         super(props);
-        this.state = { metrics: '', groupingSeconds: 1800, currentValue: 0, dayAverage: 0, dayMax: 0, dayMin: 0 };
+        this.state = { metrics: '', groupingSeconds: 1800, currentValue: 0, dayAverage: 0, dayMax: 0, dayMin: 0, settingsDropdownVisible: false };
     }
 
     updateGroupingSeconds (seconds) {
@@ -25,6 +26,12 @@ export default class LineGraphRendered extends React.Component {
                 this.syncData();
             });
         }
+    }
+
+    toggleExpanded () {
+        this.props.toggleExpanded(() => {
+            this.syncData();
+        })
     }
 
     syncData () {
@@ -126,31 +133,31 @@ export default class LineGraphRendered extends React.Component {
             }
         });
 
-        // Get the average value from the last 24 hours
-        apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, 86400, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
-        .then((data) => {
-            this.setState({ dayAverage: this.props.formatValue ? this.props.formatValue(data.metrics[0].value) : parseInt(data.metrics[0].value) })
-        });
+        // // Get the average value from the last 24 hours
+        // apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, 86400, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
+        // .then((data) => {
+        //     this.setState({ dayAverage: this.props.formatValue ? this.props.formatValue(data.metrics[0].value) : parseInt(data.metrics[0].value) })
+        // });
 
-        // Get the max value from the last 24 hours
-        apiLayer.metrics.getMetricMax(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
-        .then((data) => {
-            this.setState({ dayMax: this.props.formatValue ? this.props.formatValue(data.maxValue) : parseInt(data.maxValue) })
-        });
+        // // Get the max value from the last 24 hours
+        // apiLayer.metrics.getMetricMax(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
+        // .then((data) => {
+        //     this.setState({ dayMax: this.props.formatValue ? this.props.formatValue(data.maxValue) : parseInt(data.maxValue) })
+        // });
 
-        // Get the max value from the last 24 hours
-        apiLayer.metrics.getMetricMin(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
-        .then((data) => {
-            this.setState({ dayMin: this.props.formatValue ? this.props.formatValue(data.minValue) : parseInt(data.minValue) })
-        });
+        // // Get the max value from the last 24 hours
+        // apiLayer.metrics.getMetricMin(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
+        // .then((data) => {
+        //     this.setState({ dayMin: this.props.formatValue ? this.props.formatValue(data.minValue) : parseInt(data.minValue) })
+        // });
 
-        const socket = io.connect(process.env.SOCKET_URL);
-        socket.on(`metric-${body.workerIdentifier}-${body.metricName}`, (data) => {
-            const value = this.props.formatValue ? this.props.formatValue(data.value) : parseInt(data.value);
-            this.setState({ currentValue: value, latestUpdate: moment() });
-        });
+        // const socket = io.connect(process.env.SOCKET_URL);
+        // socket.on(`metric-${this.props.workerIdentifier}-${this.props.metricName}`, (data) => {
+        //     const value = this.props.formatValue ? this.props.formatValue(data.value) : parseInt(data.value);
+        //     this.setState({ currentValue: value, latestUpdate: moment() });
+        // });
 
-        this.syncData();
+        // this.syncData();
     }
 
     render () {
@@ -240,7 +247,7 @@ export default class LineGraphRendered extends React.Component {
                     flexDirection: 'column',
                     alignItems: 'center',
 
-                    '.settingsOuter': {
+                    '.buttons': {
                         height: '40px',
                         display: 'flex',
                         flexDirection: 'row-reverse',
@@ -273,8 +280,8 @@ export default class LineGraphRendered extends React.Component {
                             }
                         },
 
-                        '.settings': {
-                            borderRight: 'none'
+                        'ShadowDropdown': {
+                            width: '40px'
                         }
                     },
 
@@ -339,11 +346,39 @@ export default class LineGraphRendered extends React.Component {
                     <div className='chart' ref='chart'></div>
                 </div>
                 <div className='info'>
-                    <div className='settingsOuter'>
-                        <div className='button settings' onClick={this.props.toggleSettings}>
-                            <i className='lnr lnr-cog'></i>
-                        </div>
-                        <div className='button expand' onClick={this.props.toggleExpanded}>
+                    <div className='buttons'>
+                        <ShadowDropdown 
+                            recessStyles={{
+                                '.dropdown.shadow': {
+                                    width: '45px', height: '100%',
+
+                                    '.buttonInner': {
+                                        background: '#e3e3e3',
+
+                                        ':hover': {
+                                            background: '#dadada',
+                                        },
+
+                                        ':active': {
+                                            background: '#d3d3d3',
+                                        }
+                                    }
+                                }
+                            }}
+                            icon={<i className='lnr lnr-cog' />}
+                            items={[
+                                <div className='item' key='1' onClick={this.props.toggleSettings}>
+                                    <i className='lnr lnr-chart-bars' style={{ marginRight: '10px', fontSize: '16px' }} />Data Settings
+                                </div>,
+                                <div className='item' key='2'>
+                                    <i className='lnr lnr-pushpin' style={{ marginRight: '10px', fontSize: '16px' }} />Add Events
+                                </div>,
+                                <div className='item' key='3' style={{ borderBottom: 'none' }} onClick={this.props.deleteGraph}>
+                                    <i className='lnr lnr-cross-circle' style={{ marginRight: '10px', fontSize: '16px' }}/>Delete Graph
+                                </div>
+                            ]}
+                        />
+                        <div className='button expand' onClick={this.toggleExpanded.bind(this)}>
                             <i className={`lnr lnr-frame-${this.props.expanded ? 'contract' : 'expand'}`} style={{ paddingLeft: '3px' }}></i>
                         </div>
                         <div className='button favourite'>

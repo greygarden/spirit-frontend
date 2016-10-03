@@ -66,6 +66,10 @@ export default {
 
         createGraph (graphProps) {
             return makeAjaxCall(`${process.env.API_URL}/create_graph`, 'POST', graphProps);
+        },
+
+        deleteGraph (identifier) {
+            return makeAjaxCall(`${process.env.API_URL}/delete_graph`, 'POST', { identifier: identifier });
         }
     },
     workers: {

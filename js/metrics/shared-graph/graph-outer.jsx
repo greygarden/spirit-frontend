@@ -24,11 +24,11 @@ export default class GraphOuter extends React.Component {
         }
     }
 
-    toggleExpanded () {
+    toggleExpanded (callback) {
         this.setState({
             expanded: !this.state.expanded
         }, () => {
-            this.syncData();
+            if (callback) { callback(); };
         });
     }
 
