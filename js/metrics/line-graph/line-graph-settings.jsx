@@ -8,6 +8,7 @@ import recess from 'react-recess'
 import InlineDropdown from '../../components/inline-dropdown.jsx'
 import _ from 'lodash'
 import sharedStyles from '../../libs/shared-styles'
+import unitsHelper from '../../libs/units'
 
 export default class LineGraphSettings extends React.Component {
 
@@ -44,7 +45,7 @@ export default class LineGraphSettings extends React.Component {
         this.setState({
             selectedWorker: worker
         }, () => {
-            apiLayer.metrics.listMetrics()
+            apiLayer.metrics.listMetrics(worker.workerIdentifier)
             .then((data) => {
                 this.setState({
                     metrics: data.metrics
@@ -61,12 +62,20 @@ export default class LineGraphSettings extends React.Component {
         this.refs.metricDropdown.getInstance().hideDropdown();
     }
 
+    selectUnit (unit) {
+        this.setState({
+            selectedUnit: unit
+        });
+        this.refs.unitDropdown.getInstance().hideDropdown();
+    }
+
     saveGraph () {
         this.props.saveGraph({
             type: 'line',
             title: this.state.title,
             workerIdentifier: this.state.selectedWorker.workerIdentifier,
-            metricName: this.state.selectedMetric.name
+            metricName: this.state.selectedMetric.name,
+            units: this.state.selectedUnit.key
         })
     }
 
@@ -123,6 +132,11 @@ export default class LineGraphSettings extends React.Component {
                 },
 
                 '.metricSelection': {
+                    '@includes': [dropdownMenuStyle],
+                    'marginBottom': '15px'
+                },
+
+                '.unitSelection': {
                     '@includes': [dropdownMenuStyle]
                 },
 
@@ -190,6 +204,13 @@ export default class LineGraphSettings extends React.Component {
             }
         })
 
+        const units = _.map(unitsHelper.units, (unit) => {
+            return {
+                value: `${unit.label}`,
+                component: <div className='item' onClick={this.selectUnit.bind(this, unit)} key={unit.label}>{unit.label} ({unit.shortLabel})</div>
+            }
+        })
+
         let settings = (
             <div className='settings'>
                 <div className='title'>
@@ -200,6 +221,9 @@ export default class LineGraphSettings extends React.Component {
                 </div>
                 <div className='metricSelection'>
                     <InlineDropdown items={metrics || []} textLabel={(this.state.selectedMetric && this.state.selectedMetric.name) || 'Select Metric'} ref='metricDropdown' />
+                </div>
+                <div className='unitSelection'>
+                    <InlineDropdown items={units} textLabel={(this.state.selectedUnit && this.state.selectedUnit.label) || 'Select Units'} ref='unitDropdown' />
                 </div>
                 <div style={{flexGrow: 1}} />
                 <div className='buttons'>

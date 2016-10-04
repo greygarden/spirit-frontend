@@ -5,15 +5,10 @@
 import React from 'react'
 import recess from 'react-recess'
 import apiLayer from '../../libs/api-layer'
+import units from '../../libs/units'
 import LineGraphRendered from '../line-graph/line-graph-rendered.jsx'
 import LineGraphSettings from '../line-graph/line-graph-settings.jsx'
-
-const graphTypes = {
-    line: {
-        rendered: LineGraphRendered,
-        settings: LineGraphSettings
-    }
-}
+import _ from 'lodash'
 
 export default class GraphOuter extends React.Component {
     constructor (props) {
@@ -42,6 +37,7 @@ export default class GraphOuter extends React.Component {
         if (!this.props.identifier) {
             apiLayer.graphs.createGraph(graphProps)
             .then((data) => {
+                _.extend(this.state, data.graph);
                 this.setState({
                     settingsVisible: false
                 })
@@ -66,11 +62,16 @@ export default class GraphOuter extends React.Component {
             }
         }
 
-        const Graph = this.state.settingsVisible ? graphTypes[this.props.type].settings : graphTypes[this.props.type].rendered;
+        let graph;
+        if (this.state.settingsVisible) {
+            graph = <LineGraphSettings {...this.props} deleteGraph={this.props.deleteGraph} saveGraph={this.saveGraph.bind(this)} toggleSettings={this.toggleSettings.bind(this)} />
+        } else {
+            graph = <LineGraphRendered {...this.props} toggleExpanded={this.toggleExpanded.bind(this)} deleteGraph={this.props.deleteGraph} saveGraph={this.saveGraph.bind(this)} toggleSettings={this.toggleSettings.bind(this)} />
+        }
 
         const outer = (
             <div className='graphOuter'>
-                <Graph {...this.props} units={'°C'} highlightColor={'#FC9D9A'} formatValue={v => parseFloat(v).toFixed(1)} toggleExpanded={this.toggleExpanded.bind(this)} deleteGraph={this.props.deleteGraph} saveGraph={this.saveGraph.bind(this)} toggleSettings={this.toggleSettings.bind(this)} />
+                {graph}
             </div>
         );
 

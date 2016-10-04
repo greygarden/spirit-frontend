@@ -12,11 +12,13 @@ import Highcharts from 'highcharts';
 import AnimatedNumber from 'react-animated-number'
 import io from 'socket.io-client'
 import ShadowDropdown from '../../components/shadow-dropdown.jsx'
+import unitsHelper from '../../libs/units'
 
 export default class LineGraphRendered extends React.Component {
 
     constructor (props) {
         super(props);
+        console.log(props);
         this.state = { metrics: '', groupingSeconds: 1800, currentValue: 0, dayAverage: 0, dayMax: 0, dayMin: 0, settingsDropdownVisible: false };
     }
 
@@ -38,6 +40,8 @@ export default class LineGraphRendered extends React.Component {
         if (this.syncInterval) {
             clearInterval(this.syncInterval);
         }
+
+        const units = unitsHelper.getUnitsWithKey(this.props.units);
 
         let chart;
         apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, this.state.groupingSeconds / (this.props.expanded ? 3 : 1), moment().subtract(this.state.groupingSeconds * 12, 'seconds').toISOString(), moment().toISOString())
@@ -83,17 +87,17 @@ export default class LineGraphRendered extends React.Component {
                     data: data.metrics.map((metric) => {
                         return [moment(metric.timestamp).valueOf(), parseInt(metric.value)]
                     }),
-                    lineColor: this.props.highlightColor,
+                    lineColor: units.color,
                     lineWidth: 3,
-                    color: this.props.highlightColor,
+                    color: units.color,
                     marker: {
                         fillColor: '#fff',
-                        lineColor: this.props.highlightColor,
+                        lineColor: units.color,
                         lineWidth: '1.5px'
                     }
                 }],
                 tooltip: {
-                    backgroundColor: sharedStyles.shadeColor(this.props.highlightColor, -15),
+                    backgroundColor: sharedStyles.shadeColor(units.color, -15),
                     borderWidth: 0,
                     borderRadius: 5,
                     shadow: false,
@@ -161,6 +165,8 @@ export default class LineGraphRendered extends React.Component {
     }
 
     render () {
+        const units = unitsHelper.getUnitsWithKey(this.props.units);
+
         const chartStyles = {
             '.lineGraphOuter': {
                 background: '#fff',
@@ -221,7 +227,7 @@ export default class LineGraphRendered extends React.Component {
                             paddingRight: '10px',
 
                             '.button': {
-                                color: this.props.highlightColor,
+                                color: units.color,
                                 margin: '5px',
                                 cursor: 'pointer'
                             },
@@ -297,7 +303,7 @@ export default class LineGraphRendered extends React.Component {
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            color: this.props.highlightColor,
+                            color: units.color,
                         },
 
                         '.mediumValue': {
@@ -387,25 +393,25 @@ export default class LineGraphRendered extends React.Component {
                     </div>
                     <div className='valueOuter'>
                         <div className='largeValue'>
-                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={this.state.currentValue} duration={300} formatValue={(n) => { return n + this.props.units }} />
+                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={units.formatter(this.state.currentValue)} duration={300} formatValue={(n) => { return n + units.shortLabel }} />
                         </div>
                         <div className='label'>Current Value</div>
                     </div>
                     <div className='valueOuter'>
                         <div className='mediumValue'>
-                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={this.state.dayAverage} duration={300} formatValue={(n) => { return n + this.props.units }} />
+                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={units.formatter(this.state.dayAverage)} duration={300} formatValue={(n) => { return n + units.shortLabel }} />
                         </div>
                         <div className='label'>Avg / 24hr</div>
                     </div>
                     <div className='valueOuter'>
                         <div className='mediumValue'>
-                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={this.state.dayMin} duration={300} formatValue={(n) => { return n + this.props.units }} />
+                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={units.formatter(this.state.dayMin)} duration={300} formatValue={(n) => { return n + units.shortLabel }} />
                         </div>
                         <div className='label'>Min / 24hr</div>
                     </div>
                     <div className='valueOuter' style={{ borderBottom: 'none' }}>
                         <div className='mediumValue'>
-                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={this.state.dayMax} duration={300} formatValue={(n) => { return n + this.props.units }} />
+                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={units.formatter(this.state.dayMax)} duration={300} formatValue={(n) => { return n + units.shortLabel }} />
                         </div>
                         <div className='label'>Max / 24hr</div>
                     </div>
