@@ -30,7 +30,7 @@ const units = [
         key: 'rpm',
         label: 'RPM',
         shortLabel: ' rpm',
-        color: '#542437',
+        color: '#C44D58',
         formatter: v => v
     }
 ]

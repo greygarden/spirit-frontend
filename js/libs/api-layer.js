@@ -68,8 +68,12 @@ export default {
             return makeAjaxCall(`${process.env.API_URL}/create_graph`, 'POST', graphProps);
         },
 
+        updateGraph (identifier, graphProps) {
+            return makeAjaxCall(`${process.env.API_URL}/update_graph`, 'POST', { identifier, graphProps });
+        },
+
         deleteGraph (identifier) {
-            return makeAjaxCall(`${process.env.API_URL}/delete_graph`, 'POST', { identifier: identifier });
+            return makeAjaxCall(`${process.env.API_URL}/delete_graph`, 'POST', { identifier });
         }
     },
     workers: {

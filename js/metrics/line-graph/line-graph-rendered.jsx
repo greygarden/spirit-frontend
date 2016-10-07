@@ -18,7 +18,6 @@ export default class LineGraphRendered extends React.Component {
 
     constructor (props) {
         super(props);
-        console.log(props);
         this.state = { metrics: '', groupingSeconds: 1800, currentValue: 0, dayAverage: 0, dayMax: 0, dayMin: 0, settingsDropdownVisible: false };
     }
 

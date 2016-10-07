@@ -310,8 +310,8 @@ export default class Auth extends React.Component {
                     <canvas className='canvas' ref='canvas'></canvas>
                     <div className='topBar'>
                         <div className='logo'>
-                            <div>核</div>
-                            <div>心</div>
+                            <div>水</div>
+                            <div>耕</div>
                         </div>
                         <div className='title'>
                             Spirit

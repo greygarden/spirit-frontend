@@ -217,8 +217,8 @@ export default class Application extends React.Component {
                 <div className='sideMenu'>
                     <div className='logoOuter'>
                         <div className='logo'>
-                            <div>核</div>
-                            <div>心</div>
+                            <div>水</div>
+                            <div>耕</div>
                         </div>
                         <div className='title'>
                             Spirit

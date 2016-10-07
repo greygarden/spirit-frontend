@@ -70,7 +70,7 @@ export default class LineGraphSettings extends React.Component {
     }
 
     saveGraph () {
-        this.props.saveGraph({
+        this.props.saveGraph(this.props.identifier, {
             type: 'line',
             title: this.state.title,
             workerIdentifier: this.state.selectedWorker.workerIdentifier,

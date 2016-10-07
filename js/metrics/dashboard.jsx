@@ -18,27 +18,36 @@ export default class MetricsOuter extends React.Component {
         }
     }
 
-    newGraph () {
-        this.state.graphs.push({
-            type: 'line',
-            settingsVisible: true
-        });
-        this.setState({
-            graphs: this.state.graphs
+    newGraph (type) {
+        apiLayer.graphs.createGraph({ type: type })
+        .then((data) => {
+            data.graph.settingsVisible = true;
+            this.state.graphs.push(data.graph);
+            this.setState({
+                graphs: this.state.graphs
+            });
         });
     }
 
-    deleteGraph (index) {
-        if (this.state.graphs[index].identifier) {
-            apiLayer.graphs.deleteGraph(this.state.graphs[index].identifier)
-            .then(() => {
-                this.state.graphs.splice(index, 1)
-                this.setState({ graphs: this.state.graphs })
+    saveGraph (identifier, graphProps) {
+        apiLayer.graphs.updateGraph(identifier, graphProps)
+        .then((data) => {
+            data.graph.settingsVisible = false;
+            const index = _.indexOf(this.state.graphs, g => g.identifier === identifier );
+            this.state.graphs[index] = data.graph;
+            this.setState({
+                graphs: this.state.graphs
             })
-        } else {
+        });
+    }
+
+    deleteGraph (identifier) {
+        apiLayer.graphs.deleteGraph(identifier)
+        .then(() => {
+            const index = _.indexOf(this.state.graphs, g => g.identifier === identifier );
             this.state.graphs.splice(index, 1)
             this.setState({ graphs: this.state.graphs })
-        }
+        });
     }
 
     componentDidMount() {
@@ -98,16 +107,16 @@ export default class MetricsOuter extends React.Component {
             }
         };
 
-        const graphs = this.state.graphs.map((graph, index) => {
+        const graphs = this.state.graphs.map((graph) => {
             // New graph
-            return <GraphOuter {...graph} key={index} deleteGraph={this.deleteGraph.bind(this, index)} />
+            return <GraphOuter {...graph} key={graph.identifier} saveGraph={this.saveGraph.bind(this)} deleteGraph={this.deleteGraph.bind(this, graph.identifier)} />
         });
 
         let outer = (
             <div className='dashboard'>
                 <div className='title'>
                     Upstairs Greenhouse, General Metrics
-                    <div className='addGraph' onClick={this.newGraph.bind(this)}><i className='lnr lnr-plus-circle'></i>New Graph</div>
+                    <div className='addGraph' onClick={this.newGraph.bind(this, 'line')}><i className='lnr lnr-plus-circle'></i>New Graph</div>
                 </div>
                 {graphs}
             </div>

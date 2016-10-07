@@ -14,8 +14,7 @@ export default class GraphOuter extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            settingsVisible: this.props.settingsVisible,
-            graphProperties: {}
+            settingsVisible: this.props.settingsVisible
         }
     }
 
@@ -33,25 +32,6 @@ export default class GraphOuter extends React.Component {
         })
     }
 
-    saveGraph (graphProps) {
-        if (!this.props.identifier) {
-            apiLayer.graphs.createGraph(graphProps)
-            .then((data) => {
-                _.extend(this.state, data.graph);
-                this.setState({
-                    settingsVisible: false
-                })
-            })
-        } else {
-            apiLayer.graphs.updateGraph(this.props.identifier, graphProps)
-            .then((data) => {
-                this.setState({
-                    settingsVisible: false
-                })
-            })
-        }
-    }
-
     render () {
         const outerStyles = {
             '.graphOuter': {
@@ -63,10 +43,10 @@ export default class GraphOuter extends React.Component {
         }
 
         let graph;
-        if (this.state.settingsVisible) {
-            graph = <LineGraphSettings {...this.props} deleteGraph={this.props.deleteGraph} saveGraph={this.saveGraph.bind(this)} toggleSettings={this.toggleSettings.bind(this)} />
+        if (this.state.settingsVisible || !this.props.workerIdentifier || !this.props.metricName || !this.props.units) {
+            graph = <LineGraphSettings {...this.props} saveGraph={this.props.saveGraph} toggleSettings={this.toggleSettings.bind(this)} />
         } else {
-            graph = <LineGraphRendered {...this.props} toggleExpanded={this.toggleExpanded.bind(this)} deleteGraph={this.props.deleteGraph} saveGraph={this.saveGraph.bind(this)} toggleSettings={this.toggleSettings.bind(this)} />
+            graph = <LineGraphRendered {...this.props} toggleExpanded={this.toggleExpanded.bind(this)} deleteGraph={this.props.deleteGraph} toggleSettings={this.toggleSettings.bind(this)} />
         }
 
         const outer = (
