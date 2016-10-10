@@ -45,6 +45,7 @@ export default class LineGraphRendered extends React.Component {
         let chart;
         apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, this.state.groupingSeconds / (this.props.expanded ? 3 : 1), moment().subtract(this.state.groupingSeconds * 12, 'seconds').toISOString(), moment().toISOString())
         .then((data) => {
+            if (data.metrics.length === 0) { return; }
             chart = Highcharts.chart(this.refs.chart, {
                 title: {
                     text: '',
@@ -122,6 +123,7 @@ export default class LineGraphRendered extends React.Component {
         this.syncInterval = setInterval(() => {
             apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, this.state.groupingSeconds / (this.props.expanded ? 3 : 1), moment().subtract(this.state.groupingSeconds / (this.props.expanded ? 2 : 1), 'seconds').toISOString(), moment().toISOString())
             .then((data) => {
+                if (data.metrics.length === 0) { return; }
                 const series = chart.series[0],
                 shift = series.data.length > 12;
                 chart.series[0].addPoint([ moment(data.metrics[0].timestamp).valueOf(), parseInt(data.metrics[0].value) ], true, shift);
@@ -139,18 +141,21 @@ export default class LineGraphRendered extends React.Component {
         // Get the average value from the last 24 hours
         apiLayer.metrics.getMetrics(this.props.workerIdentifier, this.props.metricName, 86400, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
         .then((data) => {
+            if (data.metrics.length === 0) { return; }
             this.setState({ dayAverage: this.props.formatValue ? this.props.formatValue(data.metrics[0].value) : parseInt(data.metrics[0].value) })
         });
 
         // Get the max value from the last 24 hours
         apiLayer.metrics.getMetricMax(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
         .then((data) => {
+            if (!data.maxValue) { return; }
             this.setState({ dayMax: this.props.formatValue ? this.props.formatValue(data.maxValue) : parseInt(data.maxValue) })
         });
 
         // Get the max value from the last 24 hours
         apiLayer.metrics.getMetricMin(this.props.workerIdentifier, this.props.metricName, moment().subtract(86400, 'seconds').toISOString(), moment().toISOString())
         .then((data) => {
+            if (!data.minValue) { return; }
             this.setState({ dayMin: this.props.formatValue ? this.props.formatValue(data.minValue) : parseInt(data.minValue) })
         });
 
@@ -240,7 +245,17 @@ export default class LineGraphRendered extends React.Component {
 
                     '.chart': {
                         marginRight: '5px',
-                        height: '340px'
+                        height: '340px',
+
+                        '.noData': {
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            fontSize: '18px',
+                            color: '#888'
+                        }
                     }
                 },
 
@@ -322,6 +337,8 @@ export default class LineGraphRendered extends React.Component {
 
         const connected = this.state.latestUpdate && this.state.latestUpdate > moment().subtract(1, 'minute');
 
+        const noData = this.state.metrics.length === 0 ? <div className='noData'>No Data</div> : null;
+
         let chart = (
             <div className='lineGraphOuter'>
                 <div className='chartOuter'>
@@ -348,14 +365,16 @@ export default class LineGraphRendered extends React.Component {
                             <div className={'button' + (this.state.groupingSeconds === 5 ? ' active' : '')} onClick={this.updateGroupingSeconds.bind(this, 5)}>1m</div>
                         </div>
                     </div>
-                    <div className='chart' ref='chart'></div>
+                    <div className='chart' ref='chart'>
+                        {noData}
+                    </div>
                 </div>
                 <div className='info'>
                     <div className='buttons'>
                         <ShadowDropdown 
                             recessStyles={{
                                 '.dropdown.shadow': {
-                                    width: '45px', height: '100%',
+                                    width: '40px', height: '100%',
 
                                     '.buttonInner': {
                                         background: '#e3e3e3',
@@ -392,25 +411,25 @@ export default class LineGraphRendered extends React.Component {
                     </div>
                     <div className='valueOuter'>
                         <div className='largeValue'>
-                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={units.formatter(this.state.currentValue)} duration={300} formatValue={(n) => { return n + units.shortLabel }} />
+                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={this.state.currentValue} duration={300} formatValue={(n) => { return units.formatter(n) + units.shortLabel }} />
                         </div>
                         <div className='label'>Current Value</div>
                     </div>
                     <div className='valueOuter'>
                         <div className='mediumValue'>
-                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={units.formatter(this.state.dayAverage)} duration={300} formatValue={(n) => { return n + units.shortLabel }} />
+                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={this.state.dayAverage} duration={300} formatValue={(n) => { return units.formatter(n) + units.shortLabel }} />
                         </div>
                         <div className='label'>Avg / 24hr</div>
                     </div>
                     <div className='valueOuter'>
                         <div className='mediumValue'>
-                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={units.formatter(this.state.dayMin)} duration={300} formatValue={(n) => { return n + units.shortLabel }} />
+                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={this.state.dayMin} duration={300} formatValue={(n) => { return units.formatter(n) + units.shortLabel }} />
                         </div>
                         <div className='label'>Min / 24hr</div>
                     </div>
                     <div className='valueOuter' style={{ borderBottom: 'none' }}>
                         <div className='mediumValue'>
-                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={units.formatter(this.state.dayMax)} duration={300} formatValue={(n) => { return n + units.shortLabel }} />
+                            <AnimatedNumber component='text' style={{ transition: '0.3s ease out' }} stepPrecision={0} value={this.state.dayMax} duration={300} formatValue={(n) => { return units.formatter(n) + units.shortLabel }} />
                         </div>
                         <div className='label'>Max / 24hr</div>
                     </div>
