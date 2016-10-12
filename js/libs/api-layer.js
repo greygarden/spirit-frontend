@@ -41,6 +41,7 @@ const makeAjaxCall = (url, method, data) => {
 };
 
 export default {
+    makeAjaxCall: makeAjaxCall,
     metrics: {
         // Lists all available metrics for a specific worker
         listMetrics (workerIdentifier) {

@@ -25,6 +25,14 @@ export default class Application extends React.Component {
         })
     }
 
+    logout () {
+        this.setState({ logoutLoading: true })
+        apiLayer.auth.logout()
+        .then(() => {
+            this.setState({ logoutLoading: false })
+        })
+    }
+
     render () {
         const styles = {
             'div': {
@@ -271,7 +279,10 @@ export default class Application extends React.Component {
                                 }}
                                 icon={<i className='lnr lnr-cog' />}
                                 items={[
-                                    <div className='item' key='3' style={{ borderBottom: 'none' }} onClick={apiLayer.auth.logout}>
+                                    <div className='item' key='3' style={{ borderBottom: 'none' }} onClick={this.logout.bind(this)}>
+                                        <div className={`loaderOuter${this.state.logoutLoading ? ' active' : ''}`}>
+                                            <div className='loader'></div>
+                                        </div>
                                         <i className='lnr lnr-exit' style={{ marginRight: '10px', fontSize: '16px' }}/>Logout
                                     </div>
                                 ]}

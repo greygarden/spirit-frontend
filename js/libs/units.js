@@ -7,14 +7,14 @@ import _ from 'lodash'
 const units = [
     {
         key: 'degreesCelcius',
-        label: 'Degrees Celcius',
+        label: 'Degrees Celcius (°C)',
         shortLabel: '°C',
         color: '#FC9D9A',
         formatter: v => parseFloat(v).toFixed(1)
     },
     {
         key: 'percent',
-        label: 'Percent',
+        label: 'Percent (%)',
         shortLabel: '%',
         color: '#C8C8A9',
         formatter: v => v

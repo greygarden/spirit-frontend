@@ -7,6 +7,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import recess from 'react-recess'
 import _ from 'lodash'
+import sharedStyles from '../libs/shared-styles'
 import OnClickOutside from 'react-onclickoutside'
 
 var ShadowDropdown = OnClickOutside(React.createClass({
@@ -104,6 +105,8 @@ var ShadowDropdown = OnClickOutside(React.createClass({
                         color: '#555',
                         width: '100%',
                         padding: '0 10px',
+                        background: '#fff',
+                        '@includes': [ sharedStyles.loader ],
 
                         ':hover': {
                             background: '#f9f9f9'

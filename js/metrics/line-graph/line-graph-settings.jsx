@@ -17,7 +17,9 @@ export default class LineGraphSettings extends React.Component {
         const state = {
             title: this.props.title || '',
             workers: [],
-            metrics: []
+            metrics: [],
+            saveLoading: false,
+            deleteLoading: false
         };
 
         if (this.props.workerIdentifier) {
@@ -30,6 +32,10 @@ export default class LineGraphSettings extends React.Component {
             state.selectedMetric = {
                 name: this.props.metricName
             }
+        }
+
+        if (this.props.units) {
+            state.selectedUnits = _.find(unitsHelper.units, u => u.key === this.props.units)
         }
 
         this.state = state;
@@ -64,27 +70,31 @@ export default class LineGraphSettings extends React.Component {
 
     selectUnit (unit) {
         this.setState({
-            selectedUnit: unit
+            selectedUnits: unit
         });
         this.refs.unitDropdown.getInstance().hideDropdown();
     }
 
     saveGraph () {
-        this.props.saveGraph(this.props.identifier, {
+        this.setState({ saveLoading: true })
+        this.props.saveGraph({
             type: 'line',
             title: this.state.title,
             workerIdentifier: this.state.selectedWorker.workerIdentifier,
             metricName: this.state.selectedMetric.name,
-            units: this.state.selectedUnit.key
-        })
+            units: this.state.selectedUnits.key
+        }).then(() => {
+            this.setState({ saveLoading: false })
+            this.props.toggleSettings()
+        });
     }
 
-    cancelEditing () {
-        if (this.props.identifier) {
-            this.props.toggleSettings()
-        } else {
-            this.props.deleteGraph()
-        }
+    deleteGraph () {
+        this.setState({ deleteLoading: true });
+        this.props.deleteGraph()
+        .then(() => {
+            this.setState({ deleteLoading: false });
+        })
     }
 
     componentDidMount () {
@@ -95,7 +105,7 @@ export default class LineGraphSettings extends React.Component {
             })
         })
 
-        this.refs.title.focus();
+        this.refs.title.focus()
     }
 
     render () {
@@ -164,6 +174,7 @@ export default class LineGraphSettings extends React.Component {
                     '.cancel': {
                         background: '#ddd',
                         marginRight: '10px',
+                        '@includes': [sharedStyles.loader],
 
                         ':hover': {
                             background: '#d9d9d9',
@@ -177,6 +188,7 @@ export default class LineGraphSettings extends React.Component {
                     '.save': {
                         background: sharedStyles.shadeColor('#556270', 30),
                         color: '#fff',
+                        '@includes': [sharedStyles.loader],
 
                         ':hover': {
                             background: sharedStyles.shadeColor('#556270', 20),
@@ -207,9 +219,22 @@ export default class LineGraphSettings extends React.Component {
         const units = _.map(unitsHelper.units, (unit) => {
             return {
                 value: `${unit.label}`,
-                component: <div className='item' onClick={this.selectUnit.bind(this, unit)} key={unit.label}>{unit.label} ({unit.shortLabel})</div>
+                component: <div className='item' onClick={this.selectUnit.bind(this, unit)} key={unit.label}><div className='unitColor'></div>{unit.label}</div>
             }
         })
+
+        let cancelEditing;
+
+        if (this.props.unconfigured) {
+            cancelEditing = <div className='button cancel' onClick={this.deleteGraph.bind(this)}>
+                <div className={`loaderOuter${this.state.deleteLoading ? ' active' : ''}`}>
+                    <div className='loader'></div>
+                </div>
+                <i className='lnr lnr-cross-circle' />Delete
+            </div>
+        } else {
+            cancelEditing = <div className='button cancel' onClick={this.props.toggleSettings}><i className='lnr lnr-cross-circle' />Cancel</div>
+        }
 
         let settings = (
             <div className='settings'>
@@ -223,12 +248,17 @@ export default class LineGraphSettings extends React.Component {
                     <InlineDropdown items={metrics || []} textLabel={(this.state.selectedMetric && this.state.selectedMetric.name) || 'Select Metric'} ref='metricDropdown' />
                 </div>
                 <div className='unitSelection'>
-                    <InlineDropdown items={units} textLabel={(this.state.selectedUnit && this.state.selectedUnit.label) || 'Select Units'} ref='unitDropdown' />
+                    <InlineDropdown items={units} textLabel={(this.state.selectedUnits && this.state.selectedUnits.label) || 'Select Units'} ref='unitDropdown' />
                 </div>
                 <div style={{flexGrow: 1}} />
                 <div className='buttons'>
-                    <div className='button save' onClick={this.saveGraph.bind(this)}><i className='lnr lnr-checkmark-circle' />Save</div>
-                    <div className='button cancel' onClick={this.cancelEditing.bind(this)}><i className='lnr lnr-cross-circle' />Cancel</div>
+                    <div className='button save' onClick={this.saveGraph.bind(this)}>
+                        <div className={`loaderOuter${this.state.saveLoading ? ' active' : ''}`}>
+                            <div className='loader inverted'></div>
+                        </div>
+                        <i className='lnr lnr-checkmark-circle' />Save
+                    </div>
+                    {cancelEditing}
                 </div>
             </div>
         );

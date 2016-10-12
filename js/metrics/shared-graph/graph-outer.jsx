@@ -43,8 +43,9 @@ export default class GraphOuter extends React.Component {
         }
 
         let graph;
-        if (this.state.settingsVisible || !this.props.workerIdentifier || !this.props.metricName || !this.props.units) {
-            graph = <LineGraphSettings {...this.props} saveGraph={this.props.saveGraph} toggleSettings={this.toggleSettings.bind(this)} />
+        const unconfigured = !this.props.workerIdentifier || !this.props.metricName || !this.props.units
+        if (this.state.settingsVisible || unconfigured) {
+            graph = <LineGraphSettings {...this.props} saveGraph={this.props.saveGraph} deleteGraph={this.props.deleteGraph} toggleSettings={this.toggleSettings.bind(this)} unconfigured={unconfigured} />
         } else {
             graph = <LineGraphRendered {...this.props} toggleExpanded={this.toggleExpanded.bind(this)} deleteGraph={this.props.deleteGraph} toggleSettings={this.toggleSettings.bind(this)} />
         }

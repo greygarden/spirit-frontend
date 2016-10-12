@@ -4,6 +4,8 @@
 
 export default {
     loader: {
+        position: 'relative',
+
         '.loaderOuter': {
             position: 'absolute',
             display: 'none',
@@ -33,10 +35,15 @@ export default {
             '.small': {
                 width: '16px',
                 height: '16px',
+            },
+
+            '.inverted': {
+                borderColor: 'rgba(255, 255, 255, 0.3)',
+                borderLeftColor: '#eee'
             }
         },
 
-        '.loaderOuter.active': {
+        '.active': {
             display: 'flex'
         }
     },

@@ -7,6 +7,7 @@ import React from 'react'
 import recess from 'react-recess'
 import GraphOuter from './shared-graph/graph-outer.jsx'
 import apiLayer from '../libs/api-layer'
+import sharedStyles from '../libs/shared-styles'
 import _ from 'lodash'
 
 export default class MetricsOuter extends React.Component {
@@ -19,21 +20,23 @@ export default class MetricsOuter extends React.Component {
     }
 
     newGraph (type) {
+        this.setState({ newGraphLoading: true })
         apiLayer.graphs.createGraph({ type: type })
         .then((data) => {
             data.graph.settingsVisible = true;
             this.state.graphs.push(data.graph);
             this.setState({
-                graphs: this.state.graphs
+                graphs: this.state.graphs,
+                newGraphLoading: false
             });
         });
     }
 
     saveGraph (identifier, graphProps) {
-        apiLayer.graphs.updateGraph(identifier, graphProps)
+        return apiLayer.graphs.updateGraph(identifier, graphProps)
         .then((data) => {
             data.graph.settingsVisible = false;
-            const index = _.indexOf(this.state.graphs, g => g.identifier === identifier );
+            const index = _.findIndex(this.state.graphs, g => g.identifier === identifier );
             this.state.graphs[index] = data.graph;
             this.setState({
                 graphs: this.state.graphs
@@ -42,9 +45,9 @@ export default class MetricsOuter extends React.Component {
     }
 
     deleteGraph (identifier) {
-        apiLayer.graphs.deleteGraph(identifier)
+        return apiLayer.graphs.deleteGraph(identifier)
         .then(() => {
-            const index = _.indexOf(this.state.graphs, g => g.identifier === identifier );
+            const index = _.findIndex(this.state.graphs, g => g.identifier === identifier );
             this.state.graphs.splice(index, 1)
             this.setState({ graphs: this.state.graphs })
         });
@@ -80,7 +83,7 @@ export default class MetricsOuter extends React.Component {
                     display: 'flex',
                     alignItems: 'center',
 
-                    '.addGraph': {
+                    '.newGraph': {
                         marginLeft: '10px',
                         font: '400 14px "Open Sans"',
                         color: '#aaa',
@@ -88,6 +91,8 @@ export default class MetricsOuter extends React.Component {
                         display: 'flex',
                         alignItems: 'center',
                         cursor: 'pointer',
+                        background: this.state.newGraphLoading ? '#eee' : 'transparent',
+                        '@includes': [ sharedStyles.loader ],
 
                         'i': {
                             fontSize: '16px',
@@ -109,14 +114,19 @@ export default class MetricsOuter extends React.Component {
 
         const graphs = this.state.graphs.map((graph) => {
             // New graph
-            return <GraphOuter {...graph} key={graph.identifier} saveGraph={this.saveGraph.bind(this)} deleteGraph={this.deleteGraph.bind(this, graph.identifier)} />
+            return <GraphOuter {...graph} key={graph.identifier} saveGraph={this.saveGraph.bind(this, graph.identifier)} deleteGraph={this.deleteGraph.bind(this, graph.identifier)} />
         });
 
         let outer = (
             <div className='dashboard'>
                 <div className='title'>
                     Upstairs Greenhouse, General Metrics
-                    <div className='addGraph' onClick={this.newGraph.bind(this, 'line')}><i className='lnr lnr-plus-circle'></i>New Graph</div>
+                    <div className='newGraph' onClick={this.newGraph.bind(this, 'line')}>
+                        <div className={`loaderOuter${this.state.newGraphLoading ? ' active' : ''}`}>
+                            <div className='loader'></div>
+                        </div>
+                        <i className='lnr lnr-plus-circle'></i>New Graph
+                    </div>
                 </div>
                 {graphs}
             </div>

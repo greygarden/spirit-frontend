@@ -18,7 +18,7 @@ export default class LineGraphRendered extends React.Component {
 
     constructor (props) {
         super(props);
-        this.state = { metrics: '', groupingSeconds: 1800, currentValue: 0, dayAverage: 0, dayMax: 0, dayMin: 0, settingsDropdownVisible: false };
+        this.state = { metrics: '', groupingSeconds: 1800, currentValue: 0, dayAverage: 0, dayMax: 0, dayMin: 0 };
     }
 
     updateGroupingSeconds (seconds) {
@@ -32,6 +32,14 @@ export default class LineGraphRendered extends React.Component {
     toggleExpanded () {
         this.props.toggleExpanded(() => {
             this.syncData();
+        })
+    }
+
+    deleteGraph () {
+        this.setState({ deleteGraphLoading: true })
+        this.props.deleteGraph()
+        .then(() => {
+            this.setState({ deleteGraphLoading: false })
         })
     }
 
@@ -397,7 +405,10 @@ export default class LineGraphRendered extends React.Component {
                                 <div className='item' key='2'>
                                     <i className='lnr lnr-pushpin' style={{ marginRight: '10px', fontSize: '16px' }} />Add Events
                                 </div>,
-                                <div className='item' key='3' style={{ borderBottom: 'none' }} onClick={this.props.deleteGraph}>
+                                <div className='item' key='3' style={{ borderBottom: 'none' }} onClick={this.deleteGraph.bind(this)}>
+                                    <div className={`loaderOuter${this.state.deleteGraphLoading ? ' active' : ''}`}>
+                                        <div className='loader'></div>
+                                    </div>
                                     <i className='lnr lnr-cross-circle' style={{ marginRight: '10px', fontSize: '16px' }}/>Delete Graph
                                 </div>
                             ]}
