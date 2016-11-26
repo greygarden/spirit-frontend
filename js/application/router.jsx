@@ -9,7 +9,7 @@ import { Router, Route, Redirect, browserHistory, IndexRoute } from 'react-route
 import Auth from '../auth/auth.jsx'
 import authHelper from '../libs/auth-helper.js'
 import Application from './application.jsx'
-import Dashboard from '../metrics/dashboard.jsx'
+import Dashboard from '../dashboards/dashboard.jsx'
 
 // Unauthenticated routes
 var authRoutes = (
@@ -25,9 +25,8 @@ var authRoutes = (
 // Authenticated routes
 const appRoutes = (
     <Route>
-        <Redirect from='app' to='/app/dashboard' />
         <Route name='application' path='app' component={Application}>
-            <Route path='dashboard' component={Dashboard} />
+            <Route path='dashboards/:dashboardIdentifier' component={Dashboard} />
         </Route>
         <Redirect from='*' to='/app' />
     </Route>

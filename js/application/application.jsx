@@ -9,6 +9,7 @@ import authHelper from '../libs/auth-helper'
 import apiLayer from '../libs/api-layer'
 import sharedStyles from '../libs/shared-styles'
 import ShadowDropdown from '../components/shadow-dropdown.jsx'
+import LeftSideMenu from './left-side-menu.jsx'
 
 export default class Application extends React.Component {
 
@@ -39,99 +40,6 @@ export default class Application extends React.Component {
                 width: '100%',
                 height: '100%',
                 display: 'flex',
-
-                '.sideMenu': {
-                    width: this.state.leftMenuExpanded ? '200px' : '45px',
-                    height: '100%',
-                    background: '#556270',
-                    flexShrink: 0,
-                    display: 'flex',
-                    flexDirection: 'column',
-
-                    '.logoOuter': {
-                        padding: this.state.leftMenuExpanded ? '10px' : 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        width: '100%',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-
-                        '.logo': {
-                            background: '#83AF9B',
-                            width: this.state.leftMenuExpanded ? '45px' : '65px',
-                            height: this.state.leftMenuExpanded ? '55px' : '75px',
-                            color: '#fff',
-                            fontSize: '20px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            lineHeight: '1.2',
-                            marginRight: this.state.leftMenuExpanded ? '10px' : 0
-                        },
-
-                        '.title': {
-                            color: '#fff',
-                            font: '200 16px "Open Sans"',
-                            display: this.state.leftMenuExpanded ? 'block' : 'none',
-
-                            '.subtitle': {
-                                marginTop: '5px',
-                                font: '400 14px "Open Sans"',
-                                color: '#ddd'
-                            }
-                        }
-                    },
-
-                    '.menuButtons': {
-                        flexGrow: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-
-                        '.button': {
-                            padding: this.state.leftMenuExpanded ? '15px' : '15px 0',
-                            color: '#fff',
-                            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: this.state.leftMenuExpanded ? 'flex-start' : 'center',
-
-                            'i': {
-                                fontSize: this.state.leftMenuExpanded ? '18px' : '23px',
-                                marginRight: this.state.leftMenuExpanded ? '15px' : 0
-                            },
-
-                            '.text': {
-                                display: this.state.leftMenuExpanded ? 'block' : 'none',
-                                flexGrow: '1'
-                            },
-
-                            '.dot': {
-                                display: 'none',
-                                width: '10px',
-                                height: '10px',
-                                background: 'rgba(255, 255, 255, 0.5)',
-                                borderRadius: '10px'
-                            },
-
-                            ':hover': {
-                                background: sharedStyles.shadeColor('#556270', -10)
-                            },
-
-                            ':active': {
-                                background: sharedStyles.shadeColor('#556270', -15)
-                            },
-                        },
-
-                        '.active': {
-                            fontWeight: '400',
-                            background: sharedStyles.shadeColor('#556270', 12),
-
-                            '.dot': {
-                                'display': this.state.leftMenuExpanded ? 'block' : 'none'
-                            }
-                        },
-                    }
-                },
 
                 '.body': {
                     flexGrow: 1,
@@ -219,32 +127,12 @@ export default class Application extends React.Component {
             },
         };
 
+        const children = this.props.children ? React.cloneElement(this.props.children) : null
+
         // Render the current route
         const content = (
             <div>
-                <div className='sideMenu'>
-                    <div className='logoOuter'>
-                        <div className='logo'>
-                            <div>水</div>
-                            <div>耕</div>
-                        </div>
-                        <div className='title'>
-                            Spirit
-                            <div className='subtitle'>Ilka Street</div>
-                        </div>
-                    </div>
-                    <div className='menuButtons'>
-                        <Link className={`button${window.location.href.match('/app/dashboard') ? ' active' : ''}`} to='/app/dashboard'>
-                            <i className='lnr lnr-pie-chart' /><div className='text'>Dashboards</div><div className='dot'></div>
-                        </Link>
-                        <Link className='button' to='/app/workers' activeClassName='active'>
-                            <i className='lnr lnr-leaf' /><div className='text'>Workers</div><div className='dot'></div>
-                        </Link>
-                        <Link className='button' to='/app/alerts' activeClassName='active'>
-                            <i className='lnr lnr-alarm' /><div className='text'>Alerts</div><div className='dot'></div>
-                        </Link>
-                    </div>
-                </div>
+                <LeftSideMenu expanded={this.state.leftMenuExpanded} />
                 <div className='body'>
                     <div className='topBar'>
                         <div className='collapseMenu' onClick={this.toggleLeftMenu.bind(this)}><i className={`lnr lnr-chevron-${this.state.leftMenuExpanded ? 'left' : 'right'}-circle`} />{this.state.leftMenuExpanded ? 'Collapse' : 'Expand'}</div>
@@ -255,7 +143,7 @@ export default class Application extends React.Component {
                                 <i className='lnr lnr-user'></i>
                             </div>
 
-                            <ShadowDropdown 
+                            <ShadowDropdown
                                 recessStyles={{
                                     '.dropdown.shadow': {
                                         width: '45px', height: '100%',
@@ -290,7 +178,7 @@ export default class Application extends React.Component {
                         </div>
                     </div>
                     <div className='bodyInner'>
-                        { React.cloneElement(this.props.children) }
+                        { children }
                     </div>
                 </div>
             </div>
