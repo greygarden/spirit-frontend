@@ -75,9 +75,9 @@ export default class LineGraphSettings extends React.Component {
         this.refs.unitDropdown.getInstance().hideDropdown();
     }
 
-    saveGraph () {
+    updateGraph () {
         this.setState({ saveLoading: true })
-        this.props.saveGraph({
+        this.props.updateGraph({
             type: 'line',
             title: this.state.title,
             workerIdentifier: this.state.selectedWorker.workerIdentifier,
@@ -252,7 +252,7 @@ export default class LineGraphSettings extends React.Component {
                 </div>
                 <div style={{flexGrow: 1}} />
                 <div className='buttons'>
-                    <div className='button save' onClick={this.saveGraph.bind(this)}>
+                    <div className='button save' onClick={this.updateGraph.bind(this)}>
                         <div className={`loaderOuter${this.state.saveLoading ? ' active' : ''}`}>
                             <div className='loader inverted'></div>
                         </div>

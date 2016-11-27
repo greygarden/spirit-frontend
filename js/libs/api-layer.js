@@ -61,10 +61,6 @@ export default {
         },
     },
     graphs: {
-        getGraphs (dashboardIdentifier) {
-            return makeAjaxCall(`${process.env.API_URL}/graphs`, 'GET', { dashboardIdentifier });
-        },
-
         createGraph (graphProps) {
             return makeAjaxCall(`${process.env.API_URL}/create_graph`, 'POST', graphProps);
         },
@@ -96,11 +92,23 @@ export default {
 
         deleteDashboard (identifier) {
             return makeAjaxCall(`${process.env.API_URL}/delete_dashboard`, 'POST', { identifier });
+        },
+
+        getDashboardComponents (dashboardIdentifier) {
+            return makeAjaxCall(`${process.env.API_URL}/dashboard_components`, 'GET', { dashboardIdentifier });
         }
     },
     controls: {
         createControl (controlProps) {
             return makeAjaxCall(`${process.env.API_URL}/create_control`, 'POST', controlProps);
+        },
+
+        updateControl (identifier, controlProps) {
+            return makeAjaxCall(`${process.env.API_URL}/update_control`, 'POST', { identifier, controlProps });
+        },
+
+        deleteControl (identifier) {
+            return makeAjaxCall(`${process.env.API_URL}/delete_control`, 'POST', { identifier });
         }
     },
     workers: {

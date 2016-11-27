@@ -7,6 +7,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import recess from 'react-recess'
 import GraphOuter from './shared-graph/graph-outer.jsx'
+import ControlOuter from './controls/control-outer.jsx'
 import apiLayer from '../libs/api-layer'
 import sharedStyles from '../libs/shared-styles'
 import _ from 'lodash'
@@ -18,10 +19,10 @@ export default class MetricsOuter extends React.Component {
         this.state = {
             title: '',
             inputTitle: '',
-            graphs: [],
             editingTitle: false,
             inputWidth: 0,
-            titleLoading: false
+            titleLoading: false,
+            components: [],
         }
     }
 
@@ -64,27 +65,27 @@ export default class MetricsOuter extends React.Component {
         })
     }
 
-    newGraph (dashboardIdentifier, type) {
-        this.setState({ newGraphLoading: true })
-        apiLayer.graphs.createGraph({ dashboardIdentifier, type })
+    createGraph (dashboardIdentifier, type) {
+        this.setState({ createGraphLoading: true })
+        apiLayer.graphs.createGraph({ dashboardIdentifier, type, componentOrder: 0 })
         .then((data) => {
             data.graph.settingsVisible = true;
-            this.state.graphs.push(data.graph);
+            this.state.components.push(data.graph);
             this.setState({
-                graphs: this.state.graphs,
-                newGraphLoading: false
+                components: this.state.components,
+                createGraphLoading: false
             });
         });
     }
 
-    saveGraph (identifier, graphProps) {
+    updateGraph (identifier, graphProps) {
         return apiLayer.graphs.updateGraph(identifier, graphProps)
         .then((data) => {
             data.graph.settingsVisible = false;
-            const index = _.findIndex(this.state.graphs, g => g.identifier === identifier );
-            this.state.graphs[index] = data.graph;
+            const index = _.findIndex(this.state.components, c => (c.identifier === identifier && c.component_type === 'graph') );
+            this.state.components[index] = data.graph;
             this.setState({
-                graphs: this.state.graphs
+                components: this.state.components
             })
         });
     }
@@ -92,22 +93,43 @@ export default class MetricsOuter extends React.Component {
     deleteGraph (identifier) {
         return apiLayer.graphs.deleteGraph(identifier)
         .then(() => {
-            const index = _.findIndex(this.state.graphs, g => g.identifier === identifier );
-            this.state.graphs.splice(index, 1)
-            this.setState({ graphs: this.state.graphs })
+            const index = _.findIndex(this.state.components, c => (c.identifier === identifier && c.component_type === 'graph') );
+            this.state.components.splice(index, 1)
+            this.setState({ components: this.state.components })
         });
     }
 
-    newControl () {
-        this.setState({ newControlLoading: true })
-        apiLayer.controls.createControl()
+    createControl (dashboardIdentifier) {
+        this.setState({ createControlLoading: true })
+        apiLayer.controls.createControl({ dashboardIdentifier})
         .then((data) => {
             data.graph.settingsVisible = true;
-            this.state.graphs.push(data.graph);
+            this.state.components.push(data.control);
             this.setState({
-                graphs: this.state.graphs,
-                newGraphLoading: false
+                components: this.state.components,
+                createGraphLoading: false
             });
+        });
+    }
+
+    updateControl (identifier, graphProps) {
+        return apiLayer.controls.updateControl(identifier, controlProps)
+        .then((data) => {
+            data.control.settingsVisible = false;
+            const index = _.findIndex(this.state.components, c => (c.identifier === identifier && c.component_type === 'control') );
+            this.state.components[index] = data.control;
+            this.setState({
+                components: this.state.components
+            })
+        });
+    }
+
+    deleteControl (identifier) {
+        return apiLayer.controls.deleteControl(identifier)
+        .then(() => {
+            const index = _.findIndex(this.state.components, c => (c.identifier === identifier && c.component_type === 'control') );
+            this.state.components.splice(index, 1)
+            this.setState({ components: this.state.components })
         });
     }
 
@@ -121,10 +143,10 @@ export default class MetricsOuter extends React.Component {
                 }, () => {
                     this.setState({ inputWidth: ReactDOM.findDOMNode(this.refs.title).offsetWidth })
                 })
-                apiLayer.graphs.getGraphs(this.props.params.dashboardIdentifier)
+                apiLayer.dashboards.getDashboardComponents(this.props.params.dashboardIdentifier)
                 .then((data) => {
                     this.setState({
-                        graphs: data.graphs
+                        components: data.components
                     })
                 })
             }
@@ -182,6 +204,7 @@ export default class MetricsOuter extends React.Component {
                         whiteSpace: 'pre',
                         border: '2px solid transparent',
                         minWidth: '140px',
+                        background: this.state.titleLoading ? '#fff' : 'transparent',
                         '@includes': [ sharedStyles.loader ],
 
                         ':hover': {
@@ -190,7 +213,7 @@ export default class MetricsOuter extends React.Component {
                         }
                     },
 
-                    '.newGraph': {
+                    '.createGraph': {
                         marginLeft: '10px',
                         font: '400 14px "Open Sans"',
                         color: '#aaa',
@@ -198,7 +221,7 @@ export default class MetricsOuter extends React.Component {
                         display: 'flex',
                         alignItems: 'center',
                         cursor: 'pointer',
-                        background: this.state.newGraphLoading ? '#eee' : 'transparent',
+                        background: this.state.createGraphLoading ? '#eee' : 'transparent',
                         '@includes': [ sharedStyles.loader ],
 
                         'i': {
@@ -219,9 +242,12 @@ export default class MetricsOuter extends React.Component {
             }
         };
 
-        const graphs = this.state.graphs.map((graph) => {
-            // New graph
-            return <GraphOuter {...graph} key={graph.identifier} saveGraph={this.saveGraph.bind(this, graph.identifier)} deleteGraph={this.deleteGraph.bind(this, graph.identifier)} />
+        const components = this.state.components.map((component) => {
+            if (component.componentType === 'graph') {
+                return <GraphOuter {...component} key={component.identifier} updateGraph={this.updateGraph.bind(this, component.identifier)} deleteGraph={this.deleteGraph.bind(this, component.identifier)} />
+            } else if (component.componentType === 'control') {
+                return <ControlOuter {...component} key={component.identifier} updateControl={this.updateControl.bind(this, component.identifier)} deleteControl={this.deleteControl.bind(this, component.identifier)} />
+            }
         });
 
         let outer = (
@@ -234,20 +260,20 @@ export default class MetricsOuter extends React.Component {
                         </div>
                         {this.state.title}
                     </div>
-                    <div className='newGraph' onClick={this.newGraph.bind(this, this.props.params.dashboardIdentifier, 'line')}>
-                        <div className={`loaderOuter${this.state.newGraphLoading ? ' active' : ''}`}>
+                    <div className='createGraph' onClick={this.createGraph.bind(this, this.props.params.dashboardIdentifier, 'line')}>
+                        <div className={`loaderOuter${this.state.createGraphLoading ? ' active' : ''}`}>
                             <div className='loader'></div>
                         </div>
                         <i className='lnr lnr-plus-circle'></i>New Graph
                     </div>
-                    <div className='newGraph' onClick={this.newControl.bind(this, this.props.params.dashboardIdentifier)}>
-                        <div className={`loaderOuter${this.state.newControlLoading ? ' active' : ''}`}>
+                    <div className='createGraph' onClick={this.createControl.bind(this, this.props.params.dashboardIdentifier)}>
+                        <div className={`loaderOuter${this.state.createControlLoading ? ' active' : ''}`}>
                             <div className='loader'></div>
                         </div>
                         <i className='lnr lnr-plus-circle'></i>New Control
                     </div>
                 </div>
-                {graphs}
+                {components}
             </div>
         );
 
